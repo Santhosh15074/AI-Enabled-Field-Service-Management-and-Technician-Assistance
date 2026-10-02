@@ -2,8 +2,20 @@ from pydantic import BaseModel, ConfigDict
 
 
 class LoginIn(BaseModel):
-    email: str
+    # An email for staff; an email or a phone number for a customer.
+    identifier: str
     password: str
+
+
+class RegisterIn(BaseModel):
+    """Customer self-registration only — see app.routes.auth.register. Phone is mandatory;
+    email is optional, since not every customer has or checks one. No address: that's
+    collected when they raise their first complaint instead."""
+
+    name: str
+    phone: str
+    password: str
+    email: str | None = None
 
 
 class UserOut(BaseModel):
@@ -11,7 +23,7 @@ class UserOut(BaseModel):
 
     id: int
     name: str
-    email: str
+    email: str | None
     role: str
 
 

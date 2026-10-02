@@ -17,10 +17,10 @@ function greeting(date = new Date()): string {
 export function PageHeader({ name, description }: { name: string; description: string }) {
   return (
     <div className="mb-8">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="text-[1.75rem] font-semibold tracking-tight sm:text-3xl">
         {greeting()}, {name.split(' ')[0]}
       </h1>
-      <p className="mt-1 text-muted-foreground">{description}</p>
+      <p className="mt-1.5 text-muted-foreground">{description}</p>
     </div>
   )
 }
@@ -40,6 +40,8 @@ const TONES = {
   danger: 'bg-red-500/10 text-red-600',
 }
 
+// One elevated strip with internal dividers, not N identical boxed cards — the same
+// numbers read as a single coherent summary instead of a row of repeated widgets.
 export function StatGrid({ stats, error }: { stats: Stat[]; error?: Error | null }) {
   return (
     <>
@@ -49,33 +51,36 @@ export function StatGrid({ stats, error }: { stats: Stat[]; error?: Error | null
           <AlertDescription>Couldn't load the numbers: {error.message}</AlertDescription>
         </Alert>
       )}
-      <div className={cn('grid grid-cols-2 gap-3 sm:gap-4', stats.length === 4 ? 'xl:grid-cols-4' : 'lg:grid-cols-3')}>
+      <div
+        className={cn(
+          'grid grid-cols-2 divide-x divide-y divide-border/60 overflow-hidden rounded-xl border border-border/60 bg-card shadow-[0_1px_2px_hsl(var(--shadow-color)/0.06),0_4px_10px_-4px_hsl(var(--shadow-color)/0.1)] sm:divide-y-0',
+          stats.length === 4 ? 'sm:grid-cols-4' : 'sm:grid-cols-3',
+        )}
+      >
         {stats.map((stat) => (
-          <StatCard key={stat.label} {...stat} />
+          <StatCell key={stat.label} {...stat} />
         ))}
       </div>
     </>
   )
 }
 
-function StatCard({ label, value, icon: Icon, hint, tone = 'default' }: Stat) {
+function StatCell({ label, value, icon: Icon, hint, tone = 'default' }: Stat) {
   return (
-    <Card className="gap-3">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardDescription className="font-medium text-foreground/80">{label}</CardDescription>
-        <div className={cn('flex size-9 items-center justify-center rounded-lg', TONES[tone])}>
-          <Icon className="size-4.5" aria-hidden="true" />
+    <div className="min-w-0 p-4 sm:p-5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="truncate text-sm font-medium text-foreground/80">{label}</p>
+        <div className={cn('flex size-7 shrink-0 items-center justify-center rounded-md', TONES[tone])}>
+          <Icon className="size-3.5" aria-hidden="true" />
         </div>
-      </CardHeader>
-      <CardContent>
-        {value === undefined ? (
-          <Skeleton className="h-9 w-16" />
-        ) : (
-          <p className="text-3xl font-semibold tracking-tight tabular-nums">{value.toLocaleString()}</p>
-        )}
-        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
+      </div>
+      {value === undefined ? (
+        <Skeleton className="mt-2.5 h-8 w-14" />
+      ) : (
+        <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums">{value.toLocaleString()}</p>
+      )}
+      <p className="mt-1 truncate text-xs text-muted-foreground">{hint}</p>
+    </div>
   )
 }
 

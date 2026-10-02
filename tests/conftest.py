@@ -1,3 +1,4 @@
+import itertools
 from pathlib import Path
 
 import pytest
@@ -49,13 +50,25 @@ def client(engine):
     app.dependency_overrides.clear()
 
 
+_UNSET = object()
+
+
 @pytest.fixture
 def make_user(db_session):
-    def _make(role: Role, email: str | None = None, **profile):
+    # A fresh counter per test, so several customers in one test never collide on phone.
+    phone_numbers = itertools.count(7000000001)
+
+    def _make(role: Role, email=_UNSET, **profile):
+        # A sentinel, not None, so a test can ask for a phone-only customer with email=None
+        # and still have it distinguished from "no email given, use the default".
+        if email is _UNSET:
+            email = f"{role.value}@example.com"
+        if role == Role.CUSTOMER:
+            profile.setdefault("phone", f"+91{next(phone_numbers)}")
         return create_user(
             db_session,
             name=f"Test {role.value}",
-            email=email or f"{role.value}@example.com",
+            email=email,
             password=PASSWORD,
             role=role,
             **profile,
@@ -64,5 +77,5 @@ def make_user(db_session):
     return _make
 
 
-def log_in(client: TestClient, email: str, password: str = PASSWORD):
-    return client.post("/api/auth/login", json={"email": email, "password": password})
+def log_in(client: TestClient, identifier: str, password: str = PASSWORD):
+    return client.post("/api/auth/login", json={"identifier": identifier, "password": password})

@@ -24,5 +24,7 @@ ml/models/*
 .vscode/
 .idea/
 .claude/
+.agents/
+skills-lock.json
 Thumbs.db
 .DS_Store

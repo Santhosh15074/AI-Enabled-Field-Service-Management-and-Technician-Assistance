@@ -7,13 +7,14 @@ export type Role = 'admin' | 'customer' | 'technician'
 export type User = {
   id: number
   name: string
-  email: string
+  // Optional: customers may register with only a phone number. Staff always have one.
+  email: string | null
   role: Role
 }
 
 export const ROLE_HOME: Record<Role, string> = {
   admin: '/admin',
-  customer: '/customer',
+  customer: '/portal',
   technician: '/technician',
 }
 
@@ -44,7 +45,8 @@ export function useCurrentUser() {
 export function useLogin() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: { email: string; password: string }) =>
+    // "identifier" because it's an email for staff, but an email or a phone number for a customer.
+    mutationFn: (body: { identifier: string; password: string }) =>
       api<User>('/api/auth/login', { method: 'POST', body }),
     onSuccess: (user) => {
       // Drop anything cached for a previous user before showing the new one's data.
@@ -62,6 +64,20 @@ export function useLogout() {
       queryClient.clear()
       queryClient.setQueryData(ME_KEY, null)
     },
+  })
+}
+
+export type RegisterInput = {
+  name: string
+  phone: string
+  password: string
+  email?: string
+}
+
+/** The customer portal's sign-up. Always creates a customer account — see app/routes/auth.py. */
+export function useRegister() {
+  return useMutation({
+    mutationFn: (body: RegisterInput) => api<User>('/api/auth/register', { method: 'POST', body }),
   })
 }
 

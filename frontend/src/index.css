@@ -44,7 +44,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Neutral greys with a single blue accent. */
+/* Neutral greys, warmed slightly toward the accent hue so nothing reads as cold-grey-on-blue.
+   One accent only — a deep, desaturated blue rather than a bright "SaaS trial" blue. */
 :root {
   --radius: 0.625rem;
   --background: oklch(0.985 0.002 250);
@@ -53,7 +54,7 @@
   --card-foreground: oklch(0.2 0.015 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.015 260);
-  --primary: oklch(0.52 0.19 262);
+  --primary: oklch(0.46 0.15 258);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.965 0.004 260);
   --secondary-foreground: oklch(0.25 0.015 260);
@@ -64,20 +65,24 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.005 260);
   --input: oklch(0.9 0.006 260);
-  --ring: oklch(0.52 0.19 262);
-  --chart-1: oklch(0.52 0.19 262);
+  --ring: oklch(0.46 0.15 258);
+  --chart-1: oklch(0.46 0.15 258);
   --chart-2: oklch(0.65 0.14 175);
   --chart-3: oklch(0.75 0.15 75);
   --chart-4: oklch(0.6 0.2 25);
   --chart-5: oklch(0.55 0.02 260);
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.3 0.015 260);
-  --sidebar-primary: oklch(0.52 0.19 262);
+  --sidebar-primary: oklch(0.46 0.15 258);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.955 0.012 262);
   --sidebar-accent-foreground: oklch(0.3 0.08 262);
   --sidebar-border: oklch(0.92 0.005 260);
-  --sidebar-ring: oklch(0.52 0.19 262);
+  --sidebar-ring: oklch(0.46 0.15 258);
+
+  /* A shadow tinted toward the primary hue instead of flat black, so elevated surfaces
+     look lit rather than pasted on. Used by Card; keeps one consistent light direction. */
+  --shadow-color: 258 15% 35%;
 }
 
 @layer base {

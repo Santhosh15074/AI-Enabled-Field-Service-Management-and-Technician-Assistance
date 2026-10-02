@@ -1,9 +1,11 @@
 """Create an admin or technician account from the command line.
 
-The registration page only creates customers, so the first admin is created here:
+The customer portal's sign-up only creates customers, so the first admin is created here.
+Admins and technicians need an email; customers need a phone number and may skip email.
 
     python scripts/create_user.py --role admin --name "Santhosh Kumar" --email admin@example.com
     python scripts/create_user.py --role technician --name "Ravi" --email ravi@example.com --skill-area "Electrical"
+    python scripts/create_user.py --role customer --name "Priya" --phone "+91 98765 43210"
 
 The password is asked for interactively so it never appears in your shell history.
 """
@@ -24,9 +26,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--role", required=True, choices=[r.value for r in Role])
     parser.add_argument("--name", required=True)
-    parser.add_argument("--email", required=True)
+    parser.add_argument("--email", help="Required for admin and technician; optional for customer")
     parser.add_argument("--skill-area", help="Technicians only, e.g. Electrical, HVAC, Plumbing")
-    parser.add_argument("--phone", help="Customers only")
+    parser.add_argument("--phone", help="Required for customer")
     parser.add_argument("--address", help="Customers only")
     args = parser.parse_args()
 
@@ -50,7 +52,8 @@ def main() -> int:
         except AccountError as error:
             print(error, file=sys.stderr)
             return 1
-    print(f"Created {user.role} account for {user.email} (id {user.id}).")
+    identifier = user.email or (user.customer.phone if user.customer else None)
+    print(f"Created {user.role} account for {identifier} (id {user.id}).")
     return 0
 
 

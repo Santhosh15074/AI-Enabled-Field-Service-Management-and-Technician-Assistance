@@ -33,7 +33,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
     { title: 'Analytics', icon: BarChart3Icon, phase: 7 },
   ],
   customer: [
-    { title: 'Overview', icon: LayoutDashboardIcon, to: '/customer' },
+    { title: 'Overview', icon: LayoutDashboardIcon, to: '/portal' },
     { title: 'New complaint', icon: MessageSquarePlusIcon, phase: 2 },
     { title: 'My requests', icon: ClipboardListIcon, phase: 2 },
     { title: 'My equipment', icon: HardDriveIcon, phase: 2 },

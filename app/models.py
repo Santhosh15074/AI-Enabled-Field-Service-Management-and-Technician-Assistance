@@ -74,7 +74,10 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
-    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    # Optional because customers may register with only a phone number (see Customer.phone,
+    # the mandatory field for them). A plain unique index already allows any number of NULLs
+    # in Postgres and SQLite, so this still rejects two accounts sharing one real email.
+    email: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(60))
     role: Mapped[str] = mapped_column(String(20))
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -94,7 +97,9 @@ class Customer(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), unique=True)
     address: Mapped[str | None] = mapped_column(Text)
-    phone: Mapped[str | None] = mapped_column(String(20))
+    # Mandatory and unique: a customer's email is optional, so phone is both their required
+    # contact number and the identifier they can log in with when they have no email.
+    phone: Mapped[str] = mapped_column(String(20), unique=True, index=True)
 
     user: Mapped[User] = relationship(back_populates="customer")
     equipment: Mapped[list["Equipment"]] = relationship(

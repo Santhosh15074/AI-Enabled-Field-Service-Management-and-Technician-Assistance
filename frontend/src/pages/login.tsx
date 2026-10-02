@@ -1,76 +1,24 @@
-import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircleIcon, Loader2Icon } from 'lucide-react'
 
-import { AuthLayout } from '@/components/auth-layout'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { ROLE_HOME, useLogin } from '@/lib/auth'
+import { Brand } from '@/components/brand'
+import { LoginForm } from '@/components/login-form'
+import { ROLE_HOME } from '@/lib/auth'
 
+/** Staff login — admin and technician. No sign-up link: those accounts are created by an admin. */
 export function LoginPage() {
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const login = useLogin()
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault()
-    login.mutate(
-      { email, password },
-      { onSuccess: (user) => navigate(ROLE_HOME[user.role], { replace: true }) },
-    )
-  }
 
   return (
-    <AuthLayout title="Welcome back" description="Log in to your FieldAssist AI account.">
-      {login.isError && (
-        <Alert variant="destructive" className="mb-6" id="login-error">
-          <AlertCircleIcon aria-hidden="true" />
-          <AlertDescription>{login.error.message}</AlertDescription>
-        </Alert>
-      )}
+    <div className="flex min-h-svh flex-col items-center justify-center p-6">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex justify-center">
+          <Brand />
+        </div>
 
-      <form onSubmit={handleSubmit} aria-describedby={login.isError ? 'login-error' : undefined}>
-        <FieldGroup>
-          <Field>
-            <FieldLabel htmlFor="email">Email</FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              spellCheck={false}
-              placeholder="name@example.com"
-              required
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              aria-invalid={login.isError || undefined}
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-invalid={login.isError || undefined}
-            />
-          </Field>
-          <Button type="submit" size="lg" className="w-full" disabled={login.isPending}>
-            {login.isPending && <Loader2Icon className="animate-spin" aria-hidden="true" />}
-            {login.isPending ? 'Logging in…' : 'Log in'}
-          </Button>
-        </FieldGroup>
-      </form>
+        <h1 className="text-center text-xl font-semibold tracking-tight">Log in</h1>
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">
-        Don't have an account? Ask your organization's admin to set one up for you.
-      </p>
-    </AuthLayout>
+        <LoginForm onLoggedIn={(user) => navigate(ROLE_HOME[user.role], { replace: true })} />
+      </div>
+    </div>
   )
 }

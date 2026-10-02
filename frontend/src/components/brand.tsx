@@ -19,7 +19,7 @@ export function Brand() {
   return (
     <div className="flex items-center gap-2.5">
       <BrandMark />
-      <span className="font-semibold tracking-tight">FieldAssist AI</span>
+      <span className="font-semibold tracking-tight">{'FieldAssist AI'}</span>
     </div>
   )
 }

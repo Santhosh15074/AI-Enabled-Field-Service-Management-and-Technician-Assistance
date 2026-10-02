@@ -47,7 +47,9 @@ export function AppShell() {
           <span className="text-sm text-muted-foreground">{ROLE_LABEL[user.role]} workspace</span>
         </header>
         <div className="flex-1 p-4 sm:p-6 lg:p-8">
-          <Outlet />
+          <div className="mx-auto w-full max-w-[1400px]">
+            <Outlet />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -70,7 +72,12 @@ function AppSidebar({ user }: { user: User }) {
               {NAVIGATION[user.role].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   {item.to ? (
-                    <SidebarMenuButton asChild isActive={pathname === item.to} tooltip={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.to}
+                      tooltip={item.title}
+                      className="data-[active=true]:bg-primary/8! data-[active=true]:text-primary! data-[active=true]:[&_svg]:text-primary!"
+                    >
                       <NavLink to={item.to} end>
                         <item.icon aria-hidden="true" />
                         <span>{item.title}</span>
@@ -126,7 +133,7 @@ function UserMenu({ user }: { user: User }) {
               </Avatar>
               <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                <span className="truncate text-xs text-muted-foreground">{user.email ?? ROLE_LABEL[user.role]}</span>
               </div>
               <ChevronsUpDownIcon className="ml-auto size-4" aria-hidden="true" />
             </SidebarMenuButton>
