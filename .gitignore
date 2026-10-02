@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Local settings and secrets
+.env
+
+# Local databases
+*.db
+*.sqlite3
+
+# Datasets and trained models are downloaded or generated, not committed
+ml/data/raw/*
+!ml/data/raw/.gitkeep
+ml/models/*
+!ml/models/.gitkeep
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.claude/
+Thumbs.db
+.DS_Store
