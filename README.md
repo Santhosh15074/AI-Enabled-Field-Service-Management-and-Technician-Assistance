@@ -59,10 +59,14 @@ docs/               diagrams, evaluation results, report
    python scripts/create_user.py --role technician --name "Ravi" --email ravi@example.com --skill-area Electrical
    ```
 
-6. **Download the datasets.**
+6. **Download the datasets, then train the urgency and failure-risk models.** Neither trained
+   file is committed (see `ml/models/.gitkeep`), so a fresh clone needs this once; without them,
+   every service request defaults to medium urgency and every reading to moderate risk.
 
    ```
    python scripts/download_datasets.py
+   python ml/train_urgency_classifier.py
+   python ml/train_failure_model.py
    ```
 
 7. **Install the frontend packages** (Node.js 20 or later).
@@ -71,6 +75,11 @@ docs/               diagrams, evaluation results, report
    cd frontend
    npm install
    ```
+
+The troubleshooting assistant's model (`sentence-transformers/all-MiniLM-L6-v2`) downloads itself
+from Hugging Face the first time it's used, then caches locally — so the first "Check for a quick
+fix" or technician "Suggested fix" click after a fresh install takes a bit longer and needs
+internet access; every one after that is instant and offline.
 
 ## Running
 
@@ -117,10 +126,10 @@ alembic upgrade head
 |---|---|---|
 | 0 | Setup: repository, environment, database, datasets | Done |
 | 1 | Database schema, login, roles, sessions, dashboards | Done |
-| 2 | Service requests: equipment, complaints, assignment, status history | |
-| 3 | Complaint classifier | |
-| 4 | Troubleshooting assistant | |
-| 5 | Report generation | |
-| 6 | Failure prediction | |
-| 7 | Dashboard and notifications | |
+| 2 | Service requests: equipment, complaints, assignment, status history | Done |
+| 3 | Complaint classifier | Done |
+| 4 | Troubleshooting assistant | Done |
+| 5 | Report generation | Done |
+| 6 | Failure prediction | Done |
+| 7 | Dashboard and notifications | Done |
 | 8 | Testing, evaluation and documentation | |

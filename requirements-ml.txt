@@ -1,5 +1,6 @@
-# Model training and evaluation (Phases 3 and 6).
-# sentence-transformers is added in Phase 4; it pulls in PyTorch, so it is kept out until needed.
+# Model training and evaluation (Phases 3 and 6). Phase 4's troubleshooting assistant also uses
+# sentence-transformers, but only to embed text at serving time — no training step of its own —
+# so it lives in requirements.txt instead.
 numpy==2.*
 pandas==2.*
 scikit-learn==1.7.*

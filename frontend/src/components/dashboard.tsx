@@ -25,6 +25,19 @@ export function PageHeader({ name, description }: { name: string; description: s
   )
 }
 
+/** The plain (non-greeting) heading used by sub-pages reached from a dashboard, e.g. "My equipment". */
+export function PageTitle({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
+  return (
+    <div className="mb-8 flex items-start justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="mt-1.5 text-muted-foreground">{description}</p>
+      </div>
+      {action}
+    </div>
+  )
+}
+
 export type Stat = {
   label: string
   value: number | undefined

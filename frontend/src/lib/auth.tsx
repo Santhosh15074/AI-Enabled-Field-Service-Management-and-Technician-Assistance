@@ -10,6 +10,9 @@ export type User = {
   // Optional: customers may register with only a phone number. Staff always have one.
   email: string | null
   role: Role
+  // Customers only — null for staff, and null for a customer who hasn't raised a
+  // complaint yet (that's when it's first asked for).
+  address: string | null
 }
 
 export const ROLE_HOME: Record<Role, string> = {

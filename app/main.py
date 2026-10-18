@@ -8,7 +8,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.config import get_settings
 from app.deps import Forbidden, NotAuthenticated
-from app.routes import auth, overview
+from app.routes import auth, equipment, knowledge_base, notifications, overview, service_reports, service_requests, users
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,12 @@ def create_app() -> FastAPI:
 
     app.include_router(auth.router)
     app.include_router(overview.router)
+    app.include_router(equipment.router)
+    app.include_router(service_requests.router)
+    app.include_router(service_reports.router)
+    app.include_router(users.router)
+    app.include_router(knowledge_base.router)
+    app.include_router(notifications.router)
 
     if FRONTEND_DIST.is_dir():
         _serve_frontend(app)

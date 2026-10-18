@@ -58,7 +58,7 @@ def make_user(db_session):
     # A fresh counter per test, so several customers in one test never collide on phone.
     phone_numbers = itertools.count(7000000001)
 
-    def _make(role: Role, email=_UNSET, **profile):
+    def _make(role: Role, email=_UNSET, name: str | None = None, **profile):
         # A sentinel, not None, so a test can ask for a phone-only customer with email=None
         # and still have it distinguished from "no email given, use the default".
         if email is _UNSET:
@@ -67,7 +67,7 @@ def make_user(db_session):
             profile.setdefault("phone", f"+91{next(phone_numbers)}")
         return create_user(
             db_session,
-            name=f"Test {role.value}",
+            name=name or f"Test {role.value}",
             email=email,
             password=PASSWORD,
             role=role,

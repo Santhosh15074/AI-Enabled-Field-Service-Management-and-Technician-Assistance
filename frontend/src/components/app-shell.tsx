@@ -3,6 +3,7 @@ import { ChevronsUpDownIcon, LogOutIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { Brand } from '@/components/brand'
+import { NotificationBell } from '@/components/notification-bell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -45,6 +46,9 @@ export function AppShell() {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4" />
           <span className="text-sm text-muted-foreground">{ROLE_LABEL[user.role]} workspace</span>
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <div className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto w-full max-w-[1400px]">

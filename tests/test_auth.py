@@ -154,6 +154,20 @@ class TestLogin:
         assert client.get("/api/auth/me").json()["email"] == user.email
         assert client.get(OVERVIEWS[role]).status_code == 200
 
+    def test_address_is_null_for_staff_and_for_a_customer_with_none_on_file(self, client, make_user):
+        for role in Role:
+            log_in(client, make_user(role, email=f"{role.value}2@example.com").email)
+            assert client.get("/api/auth/me").json()["address"] is None
+
+    def test_customer_address_appears_once_set(self, client, make_user, db_session):
+        user = make_user(Role.CUSTOMER)
+        user.customer.address = "12 Anna Salai, Chennai"
+        db_session.commit()
+
+        log_in(client, user.email)
+
+        assert client.get("/api/auth/me").json()["address"] == "12 Anna Salai, Chennai"
+
     def test_customer_can_log_in_by_phone_formatted_differently_than_stored(self, client, make_user):
         make_user(Role.CUSTOMER, phone="+91 98765 00000")
 

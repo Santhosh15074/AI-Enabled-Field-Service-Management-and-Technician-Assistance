@@ -90,6 +90,11 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 
+    @property
+    def address(self) -> str | None:
+        # None for staff; a customer's own address once they've raised their first complaint.
+        return self.customer.address if self.customer else None
+
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -106,6 +111,12 @@ class Customer(Base):
         back_populates="customer", cascade="all, delete-orphan", passive_deletes=True
     )
 
+    @property
+    def name(self) -> str:
+        # So CustomerSummary (and anything else) can read .name without reaching into .user
+        # itself; eager-load User when querying if this is used on more than a handful of rows.
+        return self.user.name
+
 
 class Technician(Base):
     __tablename__ = "technicians"
@@ -117,6 +128,10 @@ class Technician(Base):
     availability: Mapped[str] = mapped_column(String(20), default=Availability.AVAILABLE)
 
     user: Mapped[User] = relationship(back_populates="technician")
+
+    @property
+    def name(self) -> str:
+        return self.user.name
 
 
 class Equipment(Base):
@@ -173,6 +188,11 @@ class ServiceRequest(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    customer: Mapped[Customer] = relationship()
+    equipment: Mapped["Equipment | None"] = relationship()
+    technician: Mapped["Technician | None"] = relationship()
+    category: Mapped["ComplaintCategory | None"] = relationship()
 
 
 class RequestStatusLog(Base):

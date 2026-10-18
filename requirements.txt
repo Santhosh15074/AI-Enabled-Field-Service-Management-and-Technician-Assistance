@@ -12,6 +12,13 @@ psycopg[binary]==3.2.*
 # Security
 bcrypt==5.0.*
 
+# Machine learning (serving the trained models in ml/models/; see requirements-ml.txt for training)
+scikit-learn==1.7.*
+joblib==1.5.*
+# Embeds text for the troubleshooting assistant's semantic search (app.ml.troubleshooting) —
+# no training step of its own, so it's only needed here, not in requirements-ml.txt.
+sentence-transformers==6.1.*
+
 # Testing
 pytest==8.4.*
 httpx==0.28.*
