@@ -88,6 +88,14 @@ class TestCreateStaffUser:
 
         assert response.status_code == 400
 
+    def test_rejects_an_invalid_email(self, client, admin):
+        log_in(client, admin.email)
+
+        response = client.post("/api/users", json={**STAFF_PAYLOAD, "email": "not-an-email"})
+
+        assert response.status_code == 400
+        assert "valid email" in response.json()["detail"]
+
 
 class TestSetActive:
     def test_admin_can_deactivate_a_technician(self, client, db_session, admin, technician):

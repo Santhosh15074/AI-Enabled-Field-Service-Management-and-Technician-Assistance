@@ -2,7 +2,6 @@ import {
   BarChart3Icon,
   BookOpenIcon,
   ClipboardListIcon,
-  FileTextIcon,
   HardDriveIcon,
   LayoutDashboardIcon,
   MessageSquarePlusIcon,
@@ -17,10 +16,7 @@ import type { Role } from '@/lib/auth'
 export type NavItem = {
   title: string
   icon: LucideIcon
-  /** Route of a page that exists. Items without one are shown as "Soon". */
-  to?: string
-  /** Build phase that adds the page. */
-  phase?: number
+  to: string
 }
 
 export const NAVIGATION: Record<Role, NavItem[]> = {
@@ -30,7 +26,7 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
     { title: 'Users', icon: UsersIcon, to: '/admin/users' },
     { title: 'Knowledge base', icon: BookOpenIcon, to: '/admin/knowledge-base' },
     { title: 'Failure predictions', icon: ShieldAlertIcon, to: '/admin/failure-predictions' },
-    { title: 'Analytics', icon: BarChart3Icon, phase: 7 },
+    { title: 'Analytics', icon: BarChart3Icon, to: '/admin/analytics' },
   ],
   customer: [
     { title: 'Overview', icon: LayoutDashboardIcon, to: '/portal' },
@@ -41,6 +37,5 @@ export const NAVIGATION: Record<Role, NavItem[]> = {
   technician: [
     { title: 'Overview', icon: LayoutDashboardIcon, to: '/technician' },
     { title: 'My jobs', icon: WrenchIcon, to: '/technician/jobs' },
-    { title: 'Service reports', icon: FileTextIcon, phase: 5 },
   ],
 }

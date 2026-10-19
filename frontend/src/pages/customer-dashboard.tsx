@@ -1,18 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  BellRingIcon,
-  CheckCircle2Icon,
-  ClipboardListIcon,
-  HardDriveIcon,
-  MessageSquarePlusIcon,
-  MicIcon,
-} from 'lucide-react'
+import { CheckCircle2Icon, ClipboardListIcon, HardDriveIcon, MessageSquarePlusIcon, PlusIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
-import { EmptyState, PageHeader, Roadmap, StatGrid } from '@/components/dashboard'
+import { EmptyState, ListCard, PageHeader, StatGrid } from '@/components/dashboard'
+import { RequestRow } from '@/components/request-row'
+import { RiskBadge } from '@/components/risk-badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { api } from '@/lib/api'
 import { useCurrentUser } from '@/lib/auth'
+import { useMyEquipment, useMyRequests } from '@/lib/requests'
 
 type CustomerOverview = {
   equipment: number
@@ -27,6 +23,8 @@ export function CustomerDashboard() {
     queryFn: () => api<CustomerOverview>('/api/overview/customer'),
   })
   const data = overview.data
+  const requests = useMyRequests()
+  const equipment = useMyEquipment()
 
   return (
     <>
@@ -41,32 +39,62 @@ export function CustomerDashboard() {
       />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>My service requests</CardTitle>
-            <CardDescription>Every complaint you raise and where it stands.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ListCard
+          title="My service requests"
+          description="Your latest complaints and where they stand."
+          viewAll={{ to: '/portal/requests', label: 'All requests' }}
+          query={requests}
+          empty={
             <EmptyState
               icon={MessageSquarePlusIcon}
               title="You haven't raised any requests"
               description="When something goes wrong with your equipment, describe it and we'll send the right technician."
               action={
-                <Button disabled title="Available in Phase 2">
-                  <MessageSquarePlusIcon aria-hidden="true" />
-                  New complaint
+                <Button asChild>
+                  <Link to="/portal/requests/new">
+                    <MessageSquarePlusIcon aria-hidden="true" />
+                    New complaint
+                  </Link>
                 </Button>
               }
             />
-          </CardContent>
-        </Card>
-        <Roadmap
-          items={[
-            { title: 'Register equipment', description: 'Add the devices you want serviced.', phase: 2, icon: HardDriveIcon },
-            { title: 'Raise complaints', description: 'Describe an issue and track it to resolution.', phase: 2, icon: MessageSquarePlusIcon },
-            { title: 'Voice complaints', description: 'Speak instead of typing.', phase: 5, icon: MicIcon },
-            { title: 'Preventive alerts', description: "Hear about problems before they happen.", phase: 6, icon: BellRingIcon },
-          ]}
+          }
+          renderItem={(request) => (
+            <RequestRow
+              request={request}
+              meta={request.technician ? `Technician: ${request.technician.name}` : 'Waiting for a technician'}
+            />
+          )}
+        />
+        <ListCard
+          title="My equipment"
+          description="Failure risk from your technician's latest readings."
+          viewAll={{ to: '/portal/equipment', label: 'Manage' }}
+          query={equipment}
+          empty={
+            <EmptyState
+              icon={HardDriveIcon}
+              title="No equipment registered"
+              description="Register the equipment you want serviced so complaints can be linked to it."
+              action={
+                <Button asChild variant="outline">
+                  <Link to="/portal/equipment">
+                    <PlusIcon aria-hidden="true" />
+                    Add equipment
+                  </Link>
+                </Button>
+              }
+            />
+          }
+          renderItem={(item) => (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm">{item.name}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.type}</p>
+              </div>
+              <RiskBadge riskLevel={item.risk_level} />
+            </div>
+          )}
         />
       </div>
     </>

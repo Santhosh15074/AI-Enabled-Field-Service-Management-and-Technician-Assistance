@@ -77,6 +77,38 @@ class TechnicianOverview(BaseModel):
     resolved: int
 
 
+class NamedCount(BaseModel):
+    name: str
+    count: int
+
+
+class DailyCount(BaseModel):
+    date: date
+    created: int
+    resolved: int
+
+
+class TechnicianWorkload(BaseModel):
+    id: int
+    name: str
+    active: int  # open or in progress
+    resolved: int
+    avg_resolution_hours: float | None
+
+
+class AnalyticsOut(BaseModel):
+    """The admin analytics page — see app.routes.analytics."""
+
+    days: int
+    daily: list[DailyCount]
+    by_status: list[NamedCount]
+    by_urgency: list[NamedCount]
+    by_category: list[NamedCount]
+    equipment_risk: list[NamedCount]
+    technicians: list[TechnicianWorkload]
+    avg_resolution_hours: float | None
+
+
 class EquipmentIn(BaseModel):
     name: str
     type: str
@@ -112,6 +144,9 @@ class ServiceRequestIn(BaseModel):
     description: str
     equipment_id: int | None = None
     category_id: int | None = None
+    # Required when an admin or technician raises a request on a customer's behalf; ignored
+    # for customers, whose requests are always their own.
+    customer_id: int | None = None
     # Only required the first time a customer has no address on file; see
     # app.routes.requests.create_request. Saved to their profile once given.
     address: str | None = None
@@ -147,6 +182,26 @@ class CustomerSummary(BaseModel):
     id: int
     name: str
     phone: str
+
+
+class EquipmentChoice(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    type: str
+
+
+class CustomerChoice(BaseModel):
+    """A customer, with their equipment, for staff raising a request on their behalf."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    phone: str
+    address: str | None
+    equipment: list[EquipmentChoice]
 
 
 class AdminEquipmentOut(BaseModel):

@@ -1,18 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import {
-  BarChart3Icon,
-  BookOpenIcon,
-  BrainCircuitIcon,
-  ClipboardListIcon,
-  ShieldAlertIcon,
-  UsersIcon,
-  WrenchIcon,
-} from 'lucide-react'
+import { ClipboardListIcon, ShieldAlertIcon, ShieldCheckIcon, UsersIcon, WrenchIcon } from 'lucide-react'
 
-import { EmptyState, PageHeader, Roadmap, StatGrid } from '@/components/dashboard'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState, ListCard, PageHeader, StatGrid } from '@/components/dashboard'
+import { RequestRow } from '@/components/request-row'
+import { RiskBadge } from '@/components/risk-badge'
 import { api } from '@/lib/api'
 import { useCurrentUser } from '@/lib/auth'
+import { useAllEquipment } from '@/lib/fleet'
+import { useAllRequests } from '@/lib/requests'
 
 type AdminOverview = {
   customers: number
@@ -28,6 +23,8 @@ export function AdminDashboard() {
     queryFn: () => api<AdminOverview>('/api/overview/admin'),
   })
   const data = overview.data
+  const requests = useAllRequests()
+  const equipment = useAllEquipment()
 
   return (
     <>
@@ -49,27 +46,50 @@ export function AdminDashboard() {
       />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent service requests</CardTitle>
-            <CardDescription>The latest complaints from customers.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ListCard
+          title="Recent service requests"
+          description="The latest complaints from customers."
+          viewAll={{ to: '/admin/requests', label: 'All requests' }}
+          query={requests}
+          empty={
             <EmptyState
               icon={ClipboardListIcon}
               title="No service requests yet"
               description="Requests will appear here as soon as customers start submitting complaints."
             />
-          </CardContent>
-        </Card>
-        <Roadmap
-          items={[
-            { title: 'Request management', description: 'Assign technicians and track every status change.', phase: 2, icon: ClipboardListIcon },
-            { title: 'AI complaint triage', description: 'Auto-classify type and urgency on arrival.', phase: 3, icon: BrainCircuitIcon },
-            { title: 'Knowledge base', description: 'Issue and fix pairs that power troubleshooting.', phase: 4, icon: BookOpenIcon },
-            { title: 'Failure prediction', description: 'Daily risk scores for every piece of equipment.', phase: 6, icon: ShieldAlertIcon },
-            { title: 'Analytics', description: 'Trends, workload and risk charts.', phase: 7, icon: BarChart3Icon },
-          ]}
+          }
+          renderItem={(request) => (
+            <RequestRow
+              request={request}
+              showUrgency
+              meta={`${request.customer.name} · ${request.technician?.name ?? 'Not assigned'}`}
+            />
+          )}
+        />
+        <ListCard
+          title="Equipment at risk"
+          description="Critical or moderate on its latest failure prediction."
+          viewAll={{ to: '/admin/failure-predictions', label: 'All equipment' }}
+          query={equipment}
+          filter={(item) => item.risk_level === 'critical' || item.risk_level === 'moderate'}
+          empty={
+            <EmptyState
+              icon={ShieldCheckIcon}
+              title="Nothing at risk"
+              description="Equipment flagged by failure prediction will show up here."
+            />
+          }
+          renderItem={(item) => (
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm">{item.name}</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {item.type} · {item.customer.name}
+                </p>
+              </div>
+              <RiskBadge riskLevel={item.risk_level} />
+            </div>
+          )}
         />
       </div>
     </>

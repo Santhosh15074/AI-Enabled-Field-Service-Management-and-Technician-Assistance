@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { AlertCircleIcon, ClipboardListIcon, FileTextIcon } from 'lucide-react'
+import { AlertCircleIcon, ClipboardListIcon, FileTextIcon, PlusIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
 import { EmptyState, PageTitle } from '@/components/dashboard'
@@ -144,7 +145,18 @@ export function AdminRequestsPage() {
 
   return (
     <>
-      <PageTitle title="Service requests" description="Every complaint, across every customer." />
+      <PageTitle
+        title="Service requests"
+        description="Every complaint, across every customer."
+        action={
+          <Button asChild>
+            <Link to="/admin/requests/new">
+              <PlusIcon aria-hidden="true" />
+              New request
+            </Link>
+          </Button>
+        }
+      />
 
       {requests.isPending ? (
         <div className="space-y-3">

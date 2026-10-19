@@ -98,6 +98,13 @@ class TestUpdateEntry:
         db_session.refresh(updated)
         assert updated.suggested_fix == "Updated fix"
 
+    def test_rejects_blanking_the_issue(self, client, admin, category, entry_id):
+        log_in(client, admin.email)
+
+        response = client.patch(f"/api/knowledge-base/{entry_id}", json={"category_id": category.id, **ENTRY, "issue_pattern": "  "})
+
+        assert response.status_code == 400
+
     def test_updating_an_unknown_entry_is_404(self, client, admin, category):
         log_in(client, admin.email)
 

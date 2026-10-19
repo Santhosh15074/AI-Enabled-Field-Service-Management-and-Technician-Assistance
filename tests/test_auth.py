@@ -80,8 +80,11 @@ class TestCustomerSelfRegistration:
         ("overrides", "message"),
         [
             ({"password": "short"}, "at least 8"),
+            # bcrypt ignores everything past 72 bytes, so a longer password would silently be truncated.
+            ({"password": "é" * 37}, "at most 72"),
             ({"email": "not-an-email"}, "valid email"),
             ({"name": "   "}, "Enter your name"),
+            ({"name": "x" * 101}, "at most 100"),
             ({"phone": "call me"}, "valid phone"),
         ],
     )
@@ -189,6 +192,11 @@ class TestLogin:
 
         assert wrong_password.status_code == unknown_identifier.status_code == 401
         assert wrong_password.json() == unknown_identifier.json()
+
+    def test_password_longer_than_72_bytes_is_rejected(self, client, make_user):
+        make_user(Role.CUSTOMER)
+
+        assert log_in(client, "customer@example.com", PASSWORD + "x" * 72).status_code == 401
 
     def test_inactive_user_cannot_log_in(self, client, make_user, db_session):
         user = make_user(Role.TECHNICIAN)

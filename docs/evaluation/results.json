@@ -1,0 +1,118 @@
+{
+  "urgency": {
+    "train_rows": 13070,
+    "test_rows": 3268,
+    "accuracy": 0.6223990208078335,
+    "macro_f1": 0.6143718269062043,
+    "baseline_accuracy": 0.40514075887392903,
+    "baseline_macro_f1": 0.19221835075493612,
+    "high_recall": 0.6579984239558707,
+    "report": "              precision    recall  f1-score   support\n\n         low      0.519     0.615     0.563       675\n      medium      0.633     0.592     0.612      1324\n        high      0.678     0.658     0.668      1269\n\n    accuracy                          0.622      3268\n   macro avg      0.610     0.622     0.614      3268\nweighted avg      0.627     0.622     0.624      3268\n",
+    "figure": "urgency_confusion_matrix.png"
+  },
+  "failure": {
+    "test_rows": 2000,
+    "test_failures": 68,
+    "roc_auc": 0.9584627329192548,
+    "average_precision": 0.7744856428347647,
+    "moderate_at": 0.08,
+    "critical_at": 0.25,
+    "thresholds": [
+      {
+        "threshold": 0.08,
+        "recall": 0.8823529411764706,
+        "precision": 0.36585365853658536,
+        "flagged_share": 0.082
+      },
+      {
+        "threshold": 0.15,
+        "recall": 0.8235294117647058,
+        "precision": 0.5233644859813084,
+        "flagged_share": 0.0535
+      },
+      {
+        "threshold": 0.25,
+        "recall": 0.75,
+        "precision": 0.6891891891891891,
+        "flagged_share": 0.037
+      },
+      {
+        "threshold": 0.35,
+        "recall": 0.6323529411764706,
+        "precision": 0.8113207547169812,
+        "flagged_share": 0.0265
+      },
+      {
+        "threshold": 0.5,
+        "recall": 0.47058823529411764,
+        "precision": 0.9142857142857143,
+        "flagged_share": 0.0175
+      }
+    ],
+    "buckets": {
+      "good": {
+        "failures": 8,
+        "no_failures": 1828
+      },
+      "moderate": {
+        "failures": 9,
+        "no_failures": 81
+      },
+      "critical": {
+        "failures": 51,
+        "no_failures": 23
+      }
+    },
+    "figures": [
+      "failure_roc_pr.png",
+      "failure_feature_importance.png"
+    ]
+  },
+  "troubleshooting": {
+    "knowledge_base_entries": 20,
+    "matching_queries": 40,
+    "off_topic_queries": 8,
+    "semantic": {
+      "top1": 0.9,
+      "top3": 1.0,
+      "mrr": 0.95
+    },
+    "keyword": {
+      "top1": 0.775,
+      "top3": 0.925,
+      "mrr": 0.8604166666666666
+    },
+    "min_similarity": 0.35,
+    "answered_rate": 1.0,
+    "shown_hit_rate": 1.0,
+    "off_topic_rejection_rate": 1.0,
+    "figure": "troubleshooting_similarity.png"
+  },
+  "report_extraction": {
+    "reports": 12,
+    "issue_accuracy": 0.9166666666666666,
+    "action_accuracy": 1.0,
+    "time_accuracy": 1.0,
+    "parts_precision": 1.0,
+    "parts_recall": 0.8888888888888888,
+    "parts_mismatches": [
+      {
+        "report": "Lathe was making a grinding noise. Found the spindle bearing was worn. Replaced the belt and the bearing, then realigned the spindle. Job took 3 hours.",
+        "expected_parts": [
+          "belt",
+          "bearing"
+        ],
+        "extracted_parts": [
+          "belt"
+        ]
+      }
+    ],
+    "issue_misses": [
+      {
+        "report": "Water dripping from the indoor AC unit. The condensate drain line was blocked. Flushed the drain line and fitted a new drain pan. 35 min.",
+        "expected": "condensate drain line was blocked",
+        "extracted": "Water dripping from the indoor AC unit."
+      }
+    ]
+  }
+}

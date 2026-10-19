@@ -10,40 +10,67 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui
 import { NativeSelect } from '@/components/ui/native-select'
 import { SuggestionList } from '@/components/suggestion-list'
 import { Textarea } from '@/components/ui/textarea'
-import { useCurrentUser } from '@/lib/auth'
-import { useCategories, useCreateRequest, useMyEquipment, useSuggestFixes } from '@/lib/requests'
+import { useCurrentUser, type Role } from '@/lib/auth'
+import { useCategories, useCreateRequest, useCustomerChoices, useMyEquipment, useSuggestFixes } from '@/lib/requests'
 
+// Where each role lands after submitting: the list the new request now appears in.
+const AFTER_SUBMIT: Record<Role, string> = {
+  customer: '/portal/requests',
+  admin: '/admin/requests',
+  technician: '/technician/jobs',
+}
+
+/** A customer's own complaint form; admins and technicians use it to raise a request on a
+ * customer's behalf, so it first asks which customer. */
 export function NewRequestPage() {
   const navigate = useNavigate()
   const { data: user } = useCurrentUser()
-  const equipment = useMyEquipment()
+  const isStaff = user!.role !== 'customer'
+  const myEquipment = useMyEquipment(!isStaff)
+  const customers = useCustomerChoices(isStaff)
   const categories = useCategories()
   const createRequest = useCreateRequest()
   const suggestFixes = useSuggestFixes()
+  const [customerId, setCustomerId] = useState('')
   const [description, setDescription] = useState('')
   const [equipmentId, setEquipmentId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [address, setAddress] = useState('')
 
-  // Asked once: if an address is already on file, this complaint doesn't need to repeat it.
-  const needsAddress = !user?.address
+  const customer = customers.data?.find((item) => String(item.id) === customerId)
+  const equipment = isStaff ? customer?.equipment : myEquipment.data
+  const equipmentLoading = isStaff ? !customer : myEquipment.isPending
+  // Asked once: if an address is already on file, this request doesn't need to repeat it.
+  const needsAddress = isStaff ? customer != null && !customer.address : !user?.address
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     createRequest.mutate(
       {
         description,
+        customer_id: isStaff ? Number(customerId) : undefined,
         equipment_id: equipmentId ? Number(equipmentId) : undefined,
         category_id: categoryId ? Number(categoryId) : undefined,
         address: needsAddress ? address : undefined,
       },
-      { onSuccess: () => navigate('/portal/requests') },
+      { onSuccess: () => navigate(AFTER_SUBMIT[user!.role]) },
     )
   }
 
   return (
     <>
-      <PageTitle title="New complaint" description="Describe what's wrong and we'll route it to the right technician." />
+      {isStaff ? (
+        <PageTitle
+          title="New service request"
+          description={
+            user!.role === 'technician'
+              ? "Raise a request for a customer. It's assigned to you."
+              : 'Raise a request for a customer, then assign a technician from Service requests.'
+          }
+        />
+      ) : (
+        <PageTitle title="New complaint" description="Describe what's wrong and we'll route it to the right technician." />
+      )}
 
       <Card className="max-w-xl">
         <CardContent>
@@ -53,16 +80,48 @@ export function NewRequestPage() {
               <AlertDescription>{createRequest.error.message}</AlertDescription>
             </Alert>
           )}
+          {customers.isError && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircleIcon aria-hidden="true" />
+              <AlertDescription>Couldn't load customers: {customers.error.message}</AlertDescription>
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit} aria-describedby={createRequest.isError ? 'request-error' : undefined}>
             <FieldGroup>
+              {isStaff && (
+                <Field>
+                  <FieldLabel htmlFor="customer">Customer</FieldLabel>
+                  <NativeSelect
+                    id="customer"
+                    required
+                    autoFocus
+                    value={customerId}
+                    onChange={(e) => {
+                      setCustomerId(e.target.value)
+                      // Equipment belongs to one customer, so a previous pick no longer applies.
+                      setEquipmentId('')
+                    }}
+                    disabled={customers.isPending}
+                  >
+                    <option value="">{customers.data?.length === 0 ? 'No customers registered yet' : 'Select a customer'}</option>
+                    {customers.data?.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name} · {item.phone}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                  {customer?.address && <FieldDescription>Service address: {customer.address}</FieldDescription>}
+                </Field>
+              )}
+
               <Field>
                 <FieldLabel htmlFor="description">What's the problem?</FieldLabel>
                 <Textarea
                   id="description"
                   rows={4}
                   required
-                  autoFocus
+                  autoFocus={!isStaff}
                   placeholder="The compressor is making a loud grinding noise and won't hold pressure…"
                   value={description}
                   onChange={(e) => {
@@ -100,18 +159,22 @@ export function NewRequestPage() {
                   id="equipment"
                   value={equipmentId}
                   onChange={(e) => setEquipmentId(e.target.value)}
-                  disabled={equipment.isPending || (equipment.data?.length ?? 0) === 0}
+                  disabled={equipmentLoading || (equipment?.length ?? 0) === 0}
                 >
                   <option value="">
-                    {equipment.data?.length === 0 ? 'No equipment registered yet' : "I'm not sure, or it's general"}
+                    {isStaff && !customer
+                      ? 'Select a customer first'
+                      : equipment?.length === 0
+                        ? 'No equipment registered yet'
+                        : "Not sure, or it's general"}
                   </option>
-                  {equipment.data?.map((item) => (
+                  {equipment?.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name} ({item.type})
                     </option>
                   ))}
                 </NativeSelect>
-                {equipment.data?.length === 0 && (
+                {!isStaff && equipment?.length === 0 && (
                   <FieldDescription>
                     You can register equipment from{' '}
                     <Link to="/portal/equipment" className="underline underline-offset-4">
@@ -153,13 +216,17 @@ export function NewRequestPage() {
                     onChange={(e) => setAddress(e.target.value)}
                     aria-describedby="address-hint"
                   />
-                  <FieldDescription id="address-hint">Asked once — saved for your future requests too.</FieldDescription>
+                  <FieldDescription id="address-hint">
+                    {isStaff
+                      ? "This customer has no address on file yet; it's saved to their profile."
+                      : 'Asked once — saved for your future requests too.'}
+                  </FieldDescription>
                 </Field>
               )}
 
               <Button type="submit" size="lg" disabled={createRequest.isPending}>
                 {createRequest.isPending && <Loader2Icon className="animate-spin" aria-hidden="true" />}
-                {createRequest.isPending ? 'Submitting…' : 'Submit complaint'}
+                {createRequest.isPending ? 'Submitting…' : isStaff ? 'Raise request' : 'Submit complaint'}
               </Button>
             </FieldGroup>
           </form>

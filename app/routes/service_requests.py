@@ -7,7 +7,7 @@ presentation and the status-history requirement describe.
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from app.database import get_db
 from app.deps import require_role
@@ -29,6 +29,7 @@ from app.models import (
 )
 from app.schemas import (
     ComplaintCategoryOut,
+    CustomerChoice,
     RequestUpdateIn,
     ServiceRequestIn,
     ServiceRequestOut,
@@ -63,17 +64,35 @@ def _with_equipment_risk(requests: list[ServiceRequest], db: Session) -> list[Se
 
 @router.post("", response_model=ServiceRequestOut, status_code=201)
 def create_request(
-    body: ServiceRequestIn, user: User = Depends(require_role(Role.CUSTOMER)), db: Session = Depends(get_db)
+    body: ServiceRequestIn,
+    user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN, Role.TECHNICIAN)),
+    db: Session = Depends(get_db),
 ):
+    """A customer raises their own request. An admin or technician raises one on a customer's
+    behalf (a phone call, or a new fault found on site); a technician's is assigned to them,
+    since otherwise it would never reach their job queue."""
     description = body.description.strip()
     if not description:
         raise HTTPException(status_code=400, detail="Describe the problem.")
 
+    on_behalf = user.role != Role.CUSTOMER
+    if on_behalf:
+        customer = db.get(Customer, body.customer_id) if body.customer_id is not None else None
+        if customer is None or not customer.user.is_active:
+            raise HTTPException(status_code=400, detail="Select the customer this request is for.")
+    else:
+        customer = user.customer
+
     equipment_id = None
     if body.equipment_id is not None:
         equipment = db.get(Equipment, body.equipment_id)
-        if equipment is None or equipment.customer_id != user.customer.id:
-            raise HTTPException(status_code=400, detail="Select one of your own registered equipment.")
+        if equipment is None or equipment.customer_id != customer.id:
+            detail = (
+                "Select equipment registered to this customer."
+                if on_behalf
+                else "Select one of your own registered equipment."
+            )
+            raise HTTPException(status_code=400, detail=detail)
         equipment_id = equipment.id
 
     category_id = None
@@ -82,16 +101,18 @@ def create_request(
             raise HTTPException(status_code=400, detail="Select a valid category.")
         category_id = body.category_id
 
-    # Asked once: if this customer has never given a service address, this complaint is
+    # Asked once: if this customer has never given a service address, this request is
     # where we collect it, and it's then on file for every request after this one.
-    if not user.customer.address:
+    if not customer.address:
         address = (body.address or "").strip()
         if not address:
-            raise HTTPException(status_code=400, detail="Enter your service address.")
-        user.customer.address = address
+            detail = "Enter the customer's service address." if on_behalf else "Enter your service address."
+            raise HTTPException(status_code=400, detail=detail)
+        customer.address = address
 
     request = ServiceRequest(
-        customer_id=user.customer.id,
+        customer_id=customer.id,
+        technician_id=user.technician.id if user.role == Role.TECHNICIAN else None,
         equipment_id=equipment_id,
         category_id=category_id,
         description=description,
@@ -100,6 +121,8 @@ def create_request(
     db.add(request)
     db.flush()  # Assigns request.id for the status log row below, before the single commit.
     db.add(RequestStatusLog(request_id=request.id, old_status=None, new_status=RequestStatus.OPEN, changed_by=user.id))
+    if on_behalf:
+        _notify(db, customer.user_id, f"{user.name} raised request #{request.id} for you.", link="/portal/requests")
     db.commit()
 
     created = db.scalar(select(ServiceRequest).options(*_WITH_RELATED).where(ServiceRequest.id == request.id))
@@ -146,8 +169,24 @@ def list_technicians_for_assignment(_user: User = Depends(require_role(Role.ADMI
     return db.scalars(select(Technician).join(User).where(User.is_active).order_by(User.name)).all()
 
 
+@router.get("/customers", response_model=list[CustomerChoice])
+def list_customers_for_requests(
+    _user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
+):
+    """Active customers and their equipment, for staff raising a request on someone's behalf."""
+    return db.scalars(
+        select(Customer)
+        .join(User)
+        .where(User.is_active)
+        .options(joinedload(Customer.user), selectinload(Customer.equipment))
+        .order_by(User.name)
+    ).all()
+
+
 @router.get("/categories", response_model=list[ComplaintCategoryOut])
-def list_categories(_user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN)), db: Session = Depends(get_db)):
+def list_categories(
+    _user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
+):
     return db.scalars(select(ComplaintCategory).order_by(ComplaintCategory.category_name)).all()
 
 
@@ -165,10 +204,12 @@ def _serialize_suggestions(matches: list[tuple[KnowledgeBaseEntry, float]]) -> l
 
 @router.post("/suggestions", response_model=list[SuggestionOut])
 def suggest_for_description(
-    body: SuggestionIn, _user: User = Depends(require_role(Role.CUSTOMER)), db: Session = Depends(get_db)
+    body: SuggestionIn,
+    _user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN, Role.TECHNICIAN)),
+    db: Session = Depends(get_db),
 ):
-    """Tried before a request is even submitted, so a customer can attempt an easy fix
-    themselves — see the "Check for a quick fix" button on the new-complaint form."""
+    """Tried before a request is even submitted, so a customer (or staff taking their call) can
+    attempt an easy fix first — see the "Check for a quick fix" button on the new-request form."""
     return _serialize_suggestions(suggest_fixes(db, body.description))
 
 

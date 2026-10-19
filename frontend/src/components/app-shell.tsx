@@ -5,7 +5,6 @@ import { toast } from 'sonner'
 import { Brand } from '@/components/brand'
 import { NotificationBell } from '@/components/notification-bell'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,31 +74,17 @@ function AppSidebar({ user }: { user: User }) {
             <SidebarMenu>
               {NAVIGATION[user.role].map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  {item.to ? (
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.to}
-                      tooltip={item.title}
-                      className="data-[active=true]:bg-primary/8! data-[active=true]:text-primary! data-[active=true]:[&_svg]:text-primary!"
-                    >
-                      <NavLink to={item.to} end>
-                        <item.icon aria-hidden="true" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  ) : (
-                    <SidebarMenuButton
-                      aria-disabled="true"
-                      tooltip={`${item.title} · coming in Phase ${item.phase}`}
-                      className="cursor-default text-muted-foreground hover:bg-transparent hover:text-muted-foreground"
-                    >
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.to}
+                    tooltip={item.title}
+                    className="data-[active=true]:bg-primary/8! data-[active=true]:text-primary! data-[active=true]:[&_svg]:text-primary!"
+                  >
+                    <NavLink to={item.to} end>
                       <item.icon aria-hidden="true" />
                       <span>{item.title}</span>
-                      <Badge variant="secondary" className="ml-auto text-[10px] font-normal">
-                        Soon
-                      </Badge>
-                    </SidebarMenuButton>
-                  )}
+                    </NavLink>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

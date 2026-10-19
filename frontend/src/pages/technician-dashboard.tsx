@@ -1,10 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle2Icon, FileTextIcon, InboxIcon, LightbulbIcon, TimerIcon, WrenchIcon } from 'lucide-react'
+import { CheckCircle2Icon, InboxIcon, TimerIcon, WrenchIcon } from 'lucide-react'
 
-import { EmptyState, PageHeader, Roadmap, StatGrid } from '@/components/dashboard'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { EmptyState, ListCard, PageHeader, StatGrid } from '@/components/dashboard'
+import { RequestRow } from '@/components/request-row'
 import { api } from '@/lib/api'
 import { useCurrentUser } from '@/lib/auth'
+import { useAssignedRequests, type ServiceRequest } from '@/lib/requests'
+
+function jobMeta(job: ServiceRequest): string {
+  return [job.customer.name, job.equipment?.name, job.category?.category_name].filter(Boolean).join(' · ')
+}
 
 type TechnicianOverview = {
   assigned: number
@@ -19,6 +24,7 @@ export function TechnicianDashboard() {
     queryFn: () => api<TechnicianOverview>('/api/overview/technician'),
   })
   const data = overview.data
+  const jobs = useAssignedRequests()
 
   return (
     <>
@@ -33,25 +39,35 @@ export function TechnicianDashboard() {
       />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>My job queue</CardTitle>
-            <CardDescription>Service requests assigned to you, most urgent first.</CardDescription>
-          </CardHeader>
-          <CardContent>
+        <ListCard
+          title="My job queue"
+          description="Jobs still to finish, newest first."
+          viewAll={{ to: '/technician/jobs', label: 'All jobs' }}
+          query={jobs}
+          filter={(job) => job.status !== 'resolved'}
+          empty={
             <EmptyState
               icon={WrenchIcon}
-              title="No jobs assigned"
+              title="No jobs waiting"
               description="When an admin assigns you a service request, it will show up here."
             />
-          </CardContent>
-        </Card>
-        <Roadmap
-          items={[
-            { title: 'Job queue', description: 'Accept jobs and update their status.', phase: 2, icon: WrenchIcon },
-            { title: 'AI troubleshooting', description: 'Top 3 likely causes and fixes for each job.', phase: 4, icon: LightbulbIcon },
-            { title: 'Voice reports', description: 'Dictate a report; fields fill themselves.', phase: 5, icon: FileTextIcon },
-          ]}
+          }
+          renderItem={(job) => <RequestRow request={job} showUrgency meta={jobMeta(job)} />}
+        />
+        <ListCard
+          title="Completed jobs"
+          description="Jobs you've completed, newest first."
+          viewAll={{ to: '/technician/jobs', label: 'All jobs' }}
+          query={jobs}
+          filter={(job) => job.status === 'resolved'}
+          empty={
+            <EmptyState
+              icon={CheckCircle2Icon}
+              title="Nothing resolved yet"
+              description="Jobs you mark resolved will be listed here."
+            />
+          }
+          renderItem={(job) => <RequestRow request={job} meta={jobMeta(job)} />}
         />
       </div>
     </>

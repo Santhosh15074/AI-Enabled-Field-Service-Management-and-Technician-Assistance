@@ -241,11 +241,6 @@ class TestCreateRequest:
 
         assert response.status_code == 400
 
-    def test_only_customers_can_submit_a_request(self, client, technician):
-        log_in(client, technician.email)
-
-        assert submit(client).status_code == 403
-
     def test_every_request_gets_an_urgency(self, client, customer):
         # Whether or not a trained classifier is on disk, app.ml.urgency.predict_urgency always
         # returns one of the three valid levels — see tests/test_urgency.py for that in isolation.
@@ -254,6 +249,110 @@ class TestCreateRequest:
         response = submit(client)
 
         assert response.json()["urgency"] in {"low", "medium", "high"}
+
+
+class TestStaffCreatesRequest:
+    """Admins and technicians raising a request on a customer's behalf."""
+
+    def test_admin_raises_an_unassigned_request_for_a_customer(self, client, db_session, admin, customer):
+        log_in(client, admin.email)
+
+        response = submit(client, customer_id=customer.customer.id)
+
+        assert response.status_code == 201
+        body = response.json()
+        assert body["customer"]["id"] == customer.customer.id
+        assert body["status"] == "open"
+        assert body["technician"] is None
+        log = db_session.scalars(select(RequestStatusLog).where(RequestStatusLog.request_id == body["id"])).all()
+        assert [(entry.new_status, entry.changed_by) for entry in log] == [("open", admin.id)]
+
+    def test_technician_s_request_is_assigned_to_them(self, client, customer, technician):
+        log_in(client, technician.email)
+
+        response = submit(client, customer_id=customer.customer.id)
+
+        assert response.status_code == 201
+        assert response.json()["technician"]["id"] == technician.technician.id
+        assert response.json()["status"] == "open"
+        assert [job["id"] for job in client.get("/api/requests/assigned").json()] == [response.json()["id"]]
+
+    def test_the_customer_is_notified_and_sees_it(self, client, db_session, admin, customer):
+        log_in(client, admin.email)
+        request_id = submit(client, customer_id=customer.customer.id).json()["id"]
+
+        messages = db_session.scalars(select(Notification.message).where(Notification.user_id == customer.id)).all()
+        assert messages == [f"{admin.name} raised request #{request_id} for you."]
+        log_in(client, customer.email)
+        assert [item["id"] for item in client.get("/api/requests/mine").json()] == [request_id]
+
+    @pytest.mark.parametrize("customer_id", [None, 999999])
+    def test_staff_must_pick_a_real_customer(self, client, admin, customer_id):
+        log_in(client, admin.email)
+
+        response = submit(client, customer_id=customer_id)
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Select the customer this request is for."
+
+    def test_cannot_raise_for_a_deactivated_customer(self, client, db_session, admin, customer):
+        customer.is_active = False
+        db_session.commit()
+        log_in(client, admin.email)
+
+        assert submit(client, customer_id=customer.customer.id).status_code == 400
+
+    def test_equipment_must_belong_to_the_chosen_customer(self, client, db_session, admin, customer, make_user):
+        other = make_user(Role.CUSTOMER, phone="+919000000009", email=None)
+        theirs = Equipment(customer_id=other.customer.id, name="Not this customer's", type="Pump")
+        db_session.add(theirs)
+        db_session.commit()
+        log_in(client, admin.email)
+
+        response = submit(client, customer_id=customer.customer.id, equipment_id=theirs.id)
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Select equipment registered to this customer."
+
+    def test_staff_supply_the_address_if_the_customer_has_none(self, client, db_session, admin, customer):
+        log_in(client, admin.email)
+
+        missing = submit(client, customer_id=customer.customer.id, address=None)
+        saved = submit(client, customer_id=customer.customer.id, address="4 Mount Road")
+
+        assert missing.json()["detail"] == "Enter the customer's service address."
+        assert saved.status_code == 201
+        db_session.refresh(customer.customer)
+        assert customer.customer.address == "4 Mount Road"
+
+    def test_a_customer_cannot_raise_a_request_for_someone_else(self, client, customer, make_user):
+        other = make_user(Role.CUSTOMER, phone="+919000000010", email=None)
+        log_in(client, customer.email)
+
+        response = submit(client, customer_id=other.customer.id)
+
+        assert response.json()["customer"]["id"] == customer.customer.id
+
+
+class TestCustomerChoices:
+    def test_staff_see_active_customers_with_their_equipment(self, client, db_session, technician, customer, make_user):
+        gone = make_user(Role.CUSTOMER, phone="+919000000011", email=None, name="Gone")
+        gone.is_active = False
+        db_session.add(Equipment(customer_id=customer.customer.id, name="Lathe #1", type="Lathe"))
+        db_session.commit()
+        log_in(client, technician.email)
+
+        response = client.get("/api/requests/customers")
+
+        assert response.status_code == 200
+        assert [(c["id"], [e["name"] for e in c["equipment"]]) for c in response.json()] == [
+            (customer.customer.id, ["Lathe #1"])
+        ]
+
+    def test_customers_cannot_list_other_customers(self, client, customer):
+        log_in(client, customer.email)
+
+        assert client.get("/api/requests/customers").status_code == 403
 
 
 class TestCategories:
@@ -268,16 +367,15 @@ class TestCategories:
         names = {category["category_name"] for category in response.json()}
         assert names == {"Electrical", "Mechanical", "HVAC", "Plumbing", "Electronic", "General"}
 
-    def test_only_customers_can_list_categories(self, client, technician):
-        log_in(client, technician.email)
-
-        assert client.get("/api/requests/categories").status_code == 403
-
-    def test_admins_can_also_list_categories(self, client, admin):
-        # Needed for the knowledge-base admin screen's category picker.
-        log_in(client, admin.email)
+    @pytest.mark.parametrize("role", ["admin", "technician"])
+    def test_staff_can_also_list_categories(self, client, request, role):
+        # Needed for the knowledge-base category picker and for staff raising requests.
+        log_in(client, request.getfixturevalue(role).email)
 
         assert client.get("/api/requests/categories").status_code == 200
+
+    def test_categories_need_a_login(self, client):
+        assert client.get("/api/requests/categories").status_code == 401
 
     def test_can_attach_a_category(self, client, db_session, customer):
         log_in(client, customer.email)
@@ -531,10 +629,11 @@ class TestSuggestions:
         ]
         assert fake_suggestions == ["it's leaking everywhere"]
 
-    def test_only_customers_can_request_suggestions_before_submitting(self, client, technician, fake_suggestions):
+    def test_staff_can_request_suggestions_before_submitting(self, client, technician, fake_suggestions):
+        # A technician or admin raising a request for a customer can try a quick fix first too.
         log_in(client, technician.email)
 
-        assert client.post("/api/requests/suggestions", json={"description": "x"}).status_code == 403
+        assert client.post("/api/requests/suggestions", json={"description": "x"}).status_code == 200
 
     def test_technician_can_see_suggestions_for_their_own_assigned_request(
         self, client, customer, technician, admin, fake_suggestions

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { AppShell } from '@/components/app-shell'
@@ -9,16 +10,19 @@ import { AdminRequestsPage } from '@/pages/admin-requests'
 import { AdminUsersPage } from '@/pages/admin-users'
 import { CustomerDashboard } from '@/pages/customer-dashboard'
 import { LoginPage } from '@/pages/login'
+import { NewRequestPage } from '@/pages/new-request'
 import { NotFoundPage } from '@/pages/not-found'
 import { CustomerEquipmentPage } from '@/pages/portal/equipment'
 import { CustomerLoginPage } from '@/pages/portal/login'
 import { MyRequestsPage } from '@/pages/portal/my-requests'
-import { NewRequestPage } from '@/pages/portal/new-request'
 import { CustomerRegisterPage } from '@/pages/portal/register'
 import { TechnicianDashboard } from '@/pages/technician-dashboard'
 import { TechnicianJobsPage } from '@/pages/technician-jobs'
 import { TechnicianReadingsPage } from '@/pages/technician-readings'
 import { TechnicianReportPage } from '@/pages/technician-report'
+
+// Charts pull in recharts, which no other page needs, so this page is loaded on demand.
+const AdminAnalyticsPage = lazy(() => import('@/pages/admin-analytics').then((m) => ({ default: m.AdminAnalyticsPage })))
 
 export default function App() {
   return (
@@ -40,9 +44,18 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/requests" element={<AdminRequestsPage />} />
+          <Route path="/admin/requests/new" element={<NewRequestPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/failure-predictions" element={<AdminFailurePredictionsPage />} />
           <Route path="/admin/knowledge-base" element={<AdminKnowledgeBasePage />} />
+          <Route
+            path="/admin/analytics"
+            element={
+              <Suspense fallback={null}>
+                <AdminAnalyticsPage />
+              </Suspense>
+            }
+          />
         </Route>
       </Route>
       <Route element={<RequireRole roles={['customer']} />}>
@@ -57,6 +70,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/technician" element={<TechnicianDashboard />} />
           <Route path="/technician/jobs" element={<TechnicianJobsPage />} />
+          <Route path="/technician/jobs/new" element={<NewRequestPage />} />
           <Route path="/technician/jobs/:id/report" element={<TechnicianReportPage />} />
           <Route path="/technician/equipment/:id/readings" element={<TechnicianReadingsPage />} />
         </Route>

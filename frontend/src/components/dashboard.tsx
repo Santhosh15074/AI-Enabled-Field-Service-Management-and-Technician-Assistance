@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react'
-import { AlertCircleIcon, type LucideIcon } from 'lucide-react'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { AlertCircleIcon, ArrowRightIcon, type LucideIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
@@ -40,7 +42,8 @@ export function PageTitle({ title, description, action }: { title: string; descr
 
 export type Stat = {
   label: string
-  value: number | undefined
+  /** A count, or preformatted text such as a duration; undefined while loading. */
+  value: number | string | undefined
   icon: LucideIcon
   hint: string
   tone?: 'default' | 'warning' | 'danger' | 'success'
@@ -90,7 +93,9 @@ function StatCell({ label, value, icon: Icon, hint, tone = 'default' }: Stat) {
       {value === undefined ? (
         <Skeleton className="mt-2.5 h-8 w-14" />
       ) : (
-        <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums">{value.toLocaleString()}</p>
+        <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums">
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </p>
       )}
       <p className="mt-1 truncate text-xs text-muted-foreground">{hint}</p>
     </div>
@@ -120,32 +125,66 @@ export function EmptyState({
   )
 }
 
-export type RoadmapItem = { title: string; description: string; phase: number; icon: LucideIcon }
-
-export function Roadmap({ items }: { items: RoadmapItem[] }) {
+/** A dashboard card listing the first few items of a query, with a link to the full page. */
+export function ListCard<T extends { id: number }>({
+  title,
+  description,
+  viewAll,
+  query,
+  filter = () => true,
+  limit = 5,
+  empty,
+  renderItem,
+}: {
+  title: string
+  description: string
+  viewAll: { to: string; label: string }
+  query: UseQueryResult<T[]>
+  /** Only list items that pass; "View all" still shows whenever the query has any. */
+  filter?: (item: T) => boolean
+  limit?: number
+  empty: ReactNode
+  renderItem: (item: T) => ReactNode
+}) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Coming next</CardTitle>
-        <CardDescription>Features being added in upcoming build phases.</CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+        {query.data && query.data.length > 0 && (
+          <CardAction>
+            <Button asChild variant="ghost" size="sm" className="-mr-2 text-muted-foreground">
+              <Link to={viewAll.to}>
+                {viewAll.label}
+                <ArrowRightIcon aria-hidden="true" />
+              </Link>
+            </Button>
+          </CardAction>
+        )}
       </CardHeader>
       <CardContent>
-        <ul className="divide-y">
-          {items.map(({ title, description, phase, icon: Icon }) => (
-            <li key={title} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-              <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-muted">
-                <Icon className="size-4 text-muted-foreground" aria-hidden="true" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{title}</p>
-                <p className="text-sm text-muted-foreground">{description}</p>
-              </div>
-              <Badge variant="outline" className="shrink-0 font-normal">
-                Phase {phase}
-              </Badge>
-            </li>
-          ))}
-        </ul>
+        {query.isPending ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        ) : query.isError ? (
+          <Alert variant="destructive">
+            <AlertCircleIcon aria-hidden="true" />
+            <AlertDescription>Couldn't load this: {query.error.message}</AlertDescription>
+          </Alert>
+        ) : !query.data.some(filter) ? (
+          empty
+        ) : (
+          <ul className="divide-y">
+            {query.data.filter(filter).slice(0, limit).map((item) => (
+              <li key={item.id} className="py-3 first:pt-0 last:pb-0">
+                {renderItem(item)}
+              </li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   )

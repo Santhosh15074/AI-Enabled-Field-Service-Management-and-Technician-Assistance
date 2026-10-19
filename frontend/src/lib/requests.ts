@@ -66,10 +66,11 @@ export type ServiceRequest = {
 
 // ---- Equipment ----
 
-export function useMyEquipment() {
+export function useMyEquipment(enabled = true) {
   return useQuery({
     queryKey: ['equipment', 'mine'],
     queryFn: () => api<Equipment[]>('/api/equipment'),
+    enabled,
   })
 }
 
@@ -120,13 +121,38 @@ export function useCategories() {
 export function useCreateRequest() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (body: { description: string; equipment_id?: number; category_id?: number; address?: string }) =>
+    mutationFn: (body: {
+      description: string
+      equipment_id?: number
+      category_id?: number
+      address?: string
+      // Staff only: the customer a request is raised for.
+      customer_id?: number
+    }) =>
       api<ServiceRequest>('/api/requests', { method: 'POST', body }),
     onSuccess: () => {
       invalidateRequestLists(queryClient)
-      // The complaint may have just set the customer's address for the first time.
+      // The request may have just set the customer's address for the first time.
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
+      queryClient.invalidateQueries({ queryKey: ['customers'] })
     },
+  })
+}
+
+export type CustomerChoice = {
+  id: number
+  name: string
+  phone: string
+  address: string | null
+  equipment: { id: number; name: string; type: string }[]
+}
+
+/** Customers and their equipment, for staff raising a request on someone's behalf. */
+export function useCustomerChoices(enabled: boolean) {
+  return useQuery({
+    queryKey: ['customers', 'choices'],
+    queryFn: () => api<CustomerChoice[]>('/api/requests/customers'),
+    enabled,
   })
 }
 

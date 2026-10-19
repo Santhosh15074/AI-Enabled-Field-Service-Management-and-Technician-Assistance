@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertCircleIcon, ActivityIcon, FileTextIcon, LightbulbIcon, WrenchIcon } from 'lucide-react'
+import { AlertCircleIcon, ActivityIcon, FileTextIcon, LightbulbIcon, PlusIcon, WrenchIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -121,7 +121,18 @@ export function TechnicianJobsPage() {
 
   return (
     <>
-      <PageTitle title="My jobs" description="Service requests assigned to you, most urgent first." />
+      <PageTitle
+        title="My jobs"
+        description="Service requests assigned to you, most urgent first."
+        action={
+          <Button asChild>
+            <Link to="/technician/jobs/new">
+              <PlusIcon aria-hidden="true" />
+              New request
+            </Link>
+          </Button>
+        }
+      />
 
       {requests.isPending ? null : requests.isError ? (
         <Alert variant="destructive">

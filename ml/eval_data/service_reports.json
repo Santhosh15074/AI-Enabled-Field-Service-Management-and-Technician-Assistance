@@ -1,0 +1,86 @@
+[
+  {
+    "report": "Customer reported the pump was not delivering water. Found the impeller was clogged with debris. Cleaned the impeller and replaced the gasket. Took about 45 minutes.",
+    "issue": "impeller was clogged",
+    "action": ["cleaned the impeller", "replaced the gasket"],
+    "parts": ["gasket"],
+    "minutes": 45
+  },
+  {
+    "report": "AC unit not cooling. Diagnosed a clogged air filter and dirty condenser coil. Replaced the air filter and cleaned the condenser coil. Spent 1 hour on site.",
+    "issue": "clogged air filter",
+    "action": ["replaced the air filter", "cleaned the condenser coil"],
+    "parts": ["air filter"],
+    "minutes": 60
+  },
+  {
+    "report": "Breaker in the main panel kept tripping. The cause was a short in the lighting circuit. Repaired the damaged wiring and tested the circuit under load. Work took 2 hours.",
+    "issue": "short in the lighting circuit",
+    "action": ["repaired the damaged wiring", "tested the circuit"],
+    "parts": [],
+    "minutes": 120
+  },
+  {
+    "report": "Conveyor belt was squealing under load. Turned out the belt tension was too low. Adjusted the tensioner and lubricated the rollers. 30 mins.",
+    "issue": "belt tension was too low",
+    "action": ["adjusted the tensioner", "lubricated the rollers"],
+    "parts": [],
+    "minutes": 30
+  },
+  {
+    "report": "Motor making a whining noise. Root cause was a worn bearing. Replaced the bearing and installed a new coupling. Total time 1.5 hours.",
+    "issue": "worn bearing",
+    "action": ["replaced the bearing"],
+    "parts": ["bearing", "coupling"],
+    "minutes": 90
+  },
+  {
+    "report": "Control panel display was frozen. Reset the controller and reseated the ribbon cable. Display working normally afterwards. 20 minutes.",
+    "issue": "display was frozen",
+    "action": ["reset the controller", "reseated the ribbon cable"],
+    "parts": [],
+    "minutes": 20
+  },
+  {
+    "report": "Leak at the pipe joint under the sink. Found a degraded seal on the compression fitting. Replaced the seal and tightened the fitting. Took 40 minutes.",
+    "issue": "degraded seal",
+    "action": ["replaced the seal", "tightened the fitting"],
+    "parts": ["seal"],
+    "minutes": 40
+  },
+  {
+    "report": "Temperature sensor giving erratic readings. Diagnosed corrosion on the connector pins. Cleaned the connector and recalibrated the sensor. 1 hr 15 min.",
+    "issue": "corrosion on the connector pins",
+    "action": ["cleaned the connector", "recalibrated the sensor"],
+    "parts": [],
+    "minutes": 75
+  },
+  {
+    "report": "Drain backing up in the kitchen. Cleared the blockage with a drain snake and flushed the line with hot water. About 50 minutes.",
+    "issue": "drain backing up",
+    "action": ["cleared the blockage", "flushed the line"],
+    "parts": [],
+    "minutes": 50
+  },
+  {
+    "report": "Device would not power on. Found a blown fuse on the supply board. Replaced the fuse and tested the unit. 25 minutes on site.",
+    "issue": "blown fuse",
+    "action": ["replaced the fuse", "tested the unit"],
+    "parts": ["fuse"],
+    "minutes": 25
+  },
+  {
+    "report": "Lathe was making a grinding noise. Found the spindle bearing was worn. Replaced the belt and the bearing, then realigned the spindle. Job took 3 hours.",
+    "issue": "spindle bearing was worn",
+    "action": ["replaced the belt and the bearing", "realigned the spindle"],
+    "parts": ["belt", "bearing"],
+    "minutes": 180
+  },
+  {
+    "report": "Water dripping from the indoor AC unit. The condensate drain line was blocked. Flushed the drain line and fitted a new drain pan. 35 min.",
+    "issue": "condensate drain line was blocked",
+    "action": ["flushed the drain line"],
+    "parts": ["drain pan"],
+    "minutes": 35
+  }
+]

@@ -28,3 +28,7 @@ ml/models/*
 skills-lock.json
 Thumbs.db
 .DS_Store
+
+# Test coverage data
+.coverage
+htmlcov/

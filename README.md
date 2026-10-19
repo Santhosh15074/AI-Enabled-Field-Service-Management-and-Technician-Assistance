@@ -19,12 +19,18 @@ frontend/           React app
   src/components/   layout and shared pieces; ui/ holds shadcn/ui components
 alembic/            database migrations
 ml/
+  train_*.py        train the urgency and failure-risk models
+  evaluate.py       evaluates all four AI components, writes docs/evaluation/
+  eval_data/        hand-labelled test sets for troubleshooting and report extraction
   data/raw/         downloaded datasets (not committed)
-  models/           trained .pkl files (not committed)
-  notebooks/        training and evaluation
+  models/           trained .joblib files (not committed)
 scripts/            dataset download and account creation
 tests/              pytest suite
-docs/               diagrams, evaluation results, report
+docs/
+  architecture.md   components, workflows, data model, API reference, security
+  evaluation.md     how well each AI component works, and its limitations
+  testing.md        test approach, what's covered, coverage report
+  evaluation/       generated metrics and charts
 ```
 
 ## Setup (Windows)
@@ -105,9 +111,25 @@ API documentation is at http://localhost:8000/api/docs.
 
 ```
 pytest
+pytest --cov=app --cov-report=term-missing     # with line coverage
 ```
 
-Tests build a temporary SQLite database with the same Alembic migrations, so they don't need PostgreSQL.
+Tests build a temporary SQLite database with the same Alembic migrations, so they don't need PostgreSQL. What's
+covered and why is in [docs/testing.md](docs/testing.md).
+
+## Evaluation
+
+After training both models (setup step 6):
+
+```
+python ml/evaluate.py
+```
+
+This measures the urgency classifier and failure model on their held-out test splits, and the
+troubleshooting assistant and report extraction on the hand-labelled sets in `ml/eval_data/`, then
+rewrites `docs/evaluation/results.md` and its charts. Discussion of the results is in
+[docs/evaluation.md](docs/evaluation.md); the system design is in
+[docs/architecture.md](docs/architecture.md).
 
 ## Changing the database
 
@@ -131,5 +153,5 @@ alembic upgrade head
 | 4 | Troubleshooting assistant | Done |
 | 5 | Report generation | Done |
 | 6 | Failure prediction | Done |
-| 7 | Dashboard and notifications | Done |
-| 8 | Testing, evaluation and documentation | |
+| 7 | Dashboards, analytics and notifications | Done |
+| 8 | Testing, evaluation and documentation | Done |
