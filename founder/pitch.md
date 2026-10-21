@@ -1,0 +1,6 @@
+AITechnician Founding Shop Plan, for AC and appliance service companies in Chennai.
+After each job, your technician presses one button and says what was done, in Tamil, English or a mix. The app writes the service report: the problem, the work done, the parts changed (with a photo of the old part) and the time taken. The technician or you check it with one tap, and only then does it go to the customer on WhatsApp.
+You see every job of the day on one screen, and AMC renewal reminders go out to your customers on their own.
+One flat price for the whole shop: ₹1,499 a month for up to 10 technicians (750 reports), ₹2,999 for up to 25 (2,000 reports), ₹5,999 for up to 50 (4,000 reports). No extra charges if you go over; we call you first. No setup fee, cancel any time.
+You pay nothing until your team is actually using it. The first month is free, and you only start paying if your technicians sent at least 7 out of 10 of their jobs through the app in the last two weeks of that month. Your job and AMC records stay yours: download them to Excel any time, and you get a full copy if you leave.
+The founder sets up every shop in person, at your office, and gives you a direct phone number for problems. The plan is open to 10 founding shops, set up during the quiet months before the summer rush, and their price stays fixed for two years.

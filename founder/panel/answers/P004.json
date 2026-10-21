@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Every night I sit calling the boys and writing up jobs, bills and AMC dates myself, and customers still argue about which part was changed. The first month is free, I only pay if my technicians actually use it, and ₹999 is less than one AC service call, so I will try it.",
+  "objection": "Will it really understand my technicians speaking Tamil and Tanglish on a noisy rooftop with the compressor running? If the reports come out wrong I will be correcting them at night anyway, and my older technicians may not bother pressing the button.",
+  "would_change_my_mind": "If in the first week the reports come out garbled from real rooftop jobs and I have to rewrite them, I will drop it.",
+  "price_too_cheap": 199,
+  "price_cheap": 500,
+  "price_expensive": 1500,
+  "price_too_expensive": 3000
+}

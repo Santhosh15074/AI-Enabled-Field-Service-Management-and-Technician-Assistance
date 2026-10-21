@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My whole team already runs on the WhatsApp group and it costs me nothing. Paying for 18 or 20 technicians every month to replace something that works well enough is hard to justify. The AMC reminders do catch my eye though.",
+  "objection": "My technicians won't press the button after every job. They barely send photos on time now. If half of them skip it, I'm paying for reports that don't exist and still chasing them on WhatsApp.",
+  "would_change_my_mind": "If in the free month my technicians actually use it on most jobs and the AMC reminders bring back even one or two renewals I would have missed, I would pay.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 299,
+  "price_too_expensive": 499
+}

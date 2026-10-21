@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "First month is free and someone comes to my office to set it up, so I lose nothing by trying it. If it stops me phoning eight technicians all day, ₹199 a head is less than what I spend on their phone recharges, but I will only keep paying if it works in the field.",
+  "objection": "My boys speak fast Tanglish on rooftops with the compressor running and traffic below. If the report comes out wrong even a few times and goes straight to my customer on WhatsApp, it makes my shop look bad. And my technicians already send me WhatsApp voice notes for free.",
+  "would_change_my_mind": "If in the free month it gets the Tanglish reports wrong or my technicians stop pressing the button, I cancel. If it holds up, I pay.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 299,
+  "price_too_expensive": 499
+}

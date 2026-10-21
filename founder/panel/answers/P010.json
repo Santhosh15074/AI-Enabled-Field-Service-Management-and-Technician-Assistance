@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Free first month sounds fair, but I don't put my 20 technicians and my customers' WhatsApp on something no owner I know is using yet. Being one of the first 10 shops means I am the test case, and I don't do that.",
+  "objection": "Who is this founder and will this still be running next year? If he disappears in the middle of April, my techs have changed their habit, my AMC reminders stop, and I am the one answering angry customers during the rush.",
+  "would_change_my_mind": "A fellow AC service owner or my distributor telling me they have used it for a few months and their technicians actually stick with it.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 4000,
+  "price_too_expensive": 7000
+}

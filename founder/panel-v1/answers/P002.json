@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "For 8 boys that is about 1,600 rupees every month, and right now my technicians just send me a WhatsApp voice note and a photo of the old part for free. I might let them set up the free month, but I am not going to start paying a monthly bill for something I can mostly do with WhatsApp.",
+  "objection": "Will it really understand my boys speaking Tamil and Tanglish on a noisy rooftop with the outdoor unit running, or will I end up fixing the reports myself? And after the free month it is one more bill that grows every time I hire someone.",
+  "would_change_my_mind": "If in the free month it actually settles a customer dispute about which part was changed, and the price is a flat amount for my whole shop of around 500 rupees a month instead of per technician.",
+  "price_too_cheap": 29,
+  "price_cheap": 79,
+  "price_expensive": 149,
+  "price_too_expensive": 249
+}

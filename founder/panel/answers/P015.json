@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "I am tired of calling every technician all day, and this time I only pay if my boys actually use it, so the risk of another dead app is on the founder, not me. At 999 a month for my size of shop I will try the free month, but only after he sits in my office and tells me who can see my customer list.",
+  "objection": "My customer list is my business. If this app has all my customers' numbers and AMC dates, what stops it from being sold or given to a bigger competitor, and who in your company can see it?",
+  "would_change_my_mind": "If the founder cannot give me a clear written promise that my customer data is not shared or used by anyone else, I will not start.",
+  "price_too_cheap": 299,
+  "price_cheap": 799,
+  "price_expensive": 1999,
+  "price_too_expensive": 3000
+}

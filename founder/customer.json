@@ -1,0 +1,35 @@
+{
+  "business": "AITechnician (working name): voice-to-service-report software for AC and appliance service shops",
+  "target": "Owners of AC, appliance, generator and electrical service companies in Chennai with 5 to 50 field technicians (all money figures here are Indian rupees, not dollars)",
+  "where": "Chennai, India",
+  "age": [28, 58],
+  "segments": [
+    {"name": "Owner of a small shop, 5 to 10 technicians (income in rupees)", "share": 0.55, "income": [400000, 1000000]},
+    {"name": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)", "share": 0.30, "income": [1000000, 2500000]},
+    {"name": "Owner of a larger firm, 26 to 50 technicians, with an office coordinator (income in rupees)", "share": 0.15, "income": [2500000, 6000000]}
+  ],
+  "behaviours": [
+    {"name": "Runs everything on WhatsApp", "share": 0.28, "how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat."},
+    {"name": "Price-first", "share": 0.20, "how": "Uses free tools wherever possible and compares every paid tool with the cheapest one you have heard of."},
+    {"name": "Tried an app before", "share": 0.12, "how": "Paid for a job-tracking app once; the technicians stopped using it within weeks and you went back to calls and WhatsApp."},
+    {"name": "Buys on recommendation", "share": 0.14, "how": "Only tries something a trusted fellow owner, distributor or relative already uses."},
+    {"name": "Brand service partner", "share": 0.12, "how": "Does authorised service for one or two AC brands, which make you log their jobs in the brand's own system; your own customers are tracked separately."},
+    {"name": "Does the paperwork at night", "share": 0.14, "how": "Spends evenings calling technicians and writing up job details, bills and AMC dates yourself."}
+  ],
+  "objections": [
+    "My technicians will not use an app; they barely read English",
+    "WhatsApp is free and it works well enough",
+    "Will it really understand Tamil and Tanglish on a noisy rooftop?",
+    "Other job apps cost about ₹99 per technician; why pay more?",
+    "Who is behind this? Will it still be around next year?",
+    "I have no time to set up new software during the summer rush",
+    "Is my customer list safe with you?"
+  ],
+  "habits": [
+    "your technicians leave by 9am and you phone each one through the day to know where things stand",
+    "April to June is the AC rush, and you turn away jobs",
+    "a big part of your steady income is AMC contracts with apartments and offices",
+    "customers sometimes dispute what was done or which part was changed",
+    "you keep job and AMC records in a notebook and on WhatsApp"
+  ]
+}

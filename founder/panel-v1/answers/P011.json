@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "With around 40 technicians, ₹199 each comes to about ₹8,000 every month, double what the ₹99 job apps charge. I might let them run the free month, but I won't pay double just because the report is voice instead of typed.",
+  "objection": "Other job apps are ₹99 per technician. For a team my size, that ₹100 extra per head turns into almost a lakh a year, and my coordinator already handles AMC reminders.",
+  "would_change_my_mind": "A per-technician price close to ₹99, or a flat company rate for 25+ technicians, plus proof from the trial that the AMC reminders actually bring in renewals I would otherwise lose.",
+  "price_too_cheap": 30,
+  "price_cheap": 79,
+  "price_expensive": 129,
+  "price_too_expensive": 199
+}

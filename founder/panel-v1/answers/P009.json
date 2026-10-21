@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Most of my work is brand jobs, and those already have to go into the brand's own system, so this would only cover my own customers, and for them the notebook and WhatsApp work well enough. Paying ₹1,500 or more a month for my eight boys out of what I take home is a lot for something I already do for free.",
+  "objection": "My technicians would end up entering the same job twice, once in the brand app and once in this, and they will not do it. Then I am paying for an app nobody uses.",
+  "would_change_my_mind": "If it could push the job into the brand's system too, or I could pay only for the technicians doing my own customers' AMC work, and the AMC reminders actually brought back renewals I am missing now.",
+  "price_too_cheap": 29,
+  "price_cheap": 79,
+  "price_expensive": 149,
+  "price_too_expensive": 249
+}

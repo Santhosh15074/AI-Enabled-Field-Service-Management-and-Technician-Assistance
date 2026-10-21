@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "I sit up every night writing bills and AMC dates for 30-odd technicians, so ₹4,499 is nothing next to my time. With the first month free and pay-only-if-they-use-it, I lose nothing by letting the founder set it up and watching whether my boys actually press the button.",
+  "objection": "One founder and ten shops. Who is this man, and if he gets sick or shuts down in a year, my whole team's habit and my AMC follow-ups go with him. Also my senior technicians will not change how they work just because I say so.",
+  "would_change_my_mind": "If at the end of the free month fewer than half my technicians are using it, or if I cannot meet the founder and see a couple of other Chennai shops already running it, I walk away.",
+  "price_too_cheap": 1000,
+  "price_cheap": 2500,
+  "price_expensive": 7000,
+  "price_too_expensive": 12000
+}

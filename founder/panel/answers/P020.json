@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Customer disputes about which part was changed cost me time and money every month, and a photo of the old part plus a report on WhatsApp would settle those. I pay nothing unless my team actually uses it, and ₹4,499 is small money for a 40-man shop, so I will let the founder try it.",
+  "objection": "My technicians will not use an app, they barely read English, and half of them will just keep sending photos in the WhatsApp group like always. If my coordinator ends up chasing them to press the button, it is more work for us, not less.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 999,
+  "price_cheap": 2500,
+  "price_expensive": 7500,
+  "price_too_expensive": 12000
+}

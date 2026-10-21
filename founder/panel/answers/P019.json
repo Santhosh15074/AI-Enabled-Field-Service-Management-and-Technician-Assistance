@@ -1,0 +1,13 @@
+{
+  "id": "P019",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "₹999 for up to 10 technicians works out to about ₹100 a head, the same as the other job apps, and I pay nothing unless my boys actually use it. If it stops me phoning each technician all day for my own customers' jobs, I will try the free month.",
+  "objection": "My technicians already have to log every brand job in the brand's own system. If they have to enter the same job twice, they will skip yours by the second week and I will be back to phoning them.",
+  "would_change_my_mind": "If it turned out the brand jobs could not be kept out of it and my technicians had to do double entry for every job, I would drop it.",
+  "price_too_cheap": 300,
+  "price_cheap": 700,
+  "price_expensive": 1500,
+  "price_too_expensive": 2500
+}

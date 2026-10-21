@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Nobody I know is using this yet. It's only for 10 founding shops, so I'd be the one testing it on my own boys, and I don't do that. The free month and paying only if they use it is fair, but I'm not giving up my time to be the first one.",
+  "objection": "My technicians will not use an app; they barely read English. Talking in Tamil sounds easier, but I've seen them drop every app after one week, and when the summer rush comes nobody will press any button.",
+  "would_change_my_mind": "If a shop owner I trust, or my spares distributor, tells me his technicians have been using it through a full summer and it actually works.",
+  "price_too_cheap": 299,
+  "price_cheap": 799,
+  "price_expensive": 1999,
+  "price_too_expensive": 3500
+}

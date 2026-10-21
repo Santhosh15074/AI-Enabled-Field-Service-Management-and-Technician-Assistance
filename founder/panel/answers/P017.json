@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Customers fighting me over which part was changed costs me more than 999 a month, and a photo of the old part with a written report would end most of those arguments. It's free until my boys actually use it, and he sets it up now, before the summer rush, so I'll try it.",
+  "objection": "My technicians already live on WhatsApp. I doubt they'll press a new button after every job when they're running from one call to the next, and if they don't, it's just one more thing I have to chase.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 200,
+  "price_cheap": 500,
+  "price_expensive": 1500,
+  "price_too_expensive": 3000
+}

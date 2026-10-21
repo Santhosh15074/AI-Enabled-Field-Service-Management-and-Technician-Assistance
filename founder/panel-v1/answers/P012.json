@@ -1,0 +1,13 @@
+{
+  "id": "P012",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "With 8 technicians that's about ₹1,600 a month. I take home around ₹52,000 a month, and other job apps charge ₹99 a head. My WhatsApp group already gets the photos and updates through for free, so I'd maybe let them run the free trial and then not pay.",
+  "objection": "Why pay double the ₹99 apps when my technicians already send updates on WhatsApp? Also, will my boys actually press the button and talk after every job, or will it be forgotten by the second week?",
+  "would_change_my_mind": "Show me in the free month that the AMC reminders actually brought back renewals worth more than the fee, or bring the price down near ₹99 per technician.",
+  "price_too_cheap": 30,
+  "price_cheap": 79,
+  "price_expensive": 149,
+  "price_too_expensive": 249
+}

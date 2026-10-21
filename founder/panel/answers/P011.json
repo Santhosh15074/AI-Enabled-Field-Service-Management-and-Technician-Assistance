@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "price",
+  "reason": "The first month costs me nothing and I only pay if my boys actually use it, so there is no risk in letting the founder set it up. With my 30-odd technicians, ₹4,499 works out close to what the ₹99-per-head apps charge, and the AMC reminders alone could save me renewals I lose every year.",
+  "objection": "Getting 7 out of 10 jobs through the app from 30-plus technicians is a big ask, and if only half use it I am back to WhatsApp. I also worry that after two years the price jumps and I am stuck because all my AMC records are in it.",
+  "would_change_my_mind": "If the first month shows my technicians will not use it, or the reports come out wrong in Tamil and my coordinator has to fix them, I drop it.",
+  "price_too_cheap": 999,
+  "price_cheap": 2500,
+  "price_expensive": 4500,
+  "price_too_expensive": 7000
+}

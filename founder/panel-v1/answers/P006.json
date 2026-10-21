@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My boys already send me a photo and a voice note on WhatsApp for free, and I phone them anyway. For twenty technicians that is about four thousand rupees a month, every month, to replace something that costs me nothing today.",
+  "objection": "My technicians will not keep pressing any button after the first week, whatever language it listens in. Once the setup person leaves, I will be paying per head for an app half of them have stopped opening.",
+  "would_change_my_mind": "If after the free month at least most of my technicians are still sending reports without me chasing them, and the price comes down to a flat amount for the whole team instead of per technician.",
+  "price_too_cheap": 29,
+  "price_cheap": 79,
+  "price_expensive": 149,
+  "price_too_expensive": 249
+}

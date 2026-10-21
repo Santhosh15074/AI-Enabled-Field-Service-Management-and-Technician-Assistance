@@ -1,0 +1,100 @@
+{
+ "business": "AITechnician Founding Shop Plan (base case: small-shop tier, up to 10 technicians)",
+ "unit": "paying shop-month (small tier, assumes 8 technicians)",
+ "price": 1499,
+ "variable": [
+  {
+   "label": "Tamil speech-to-text: 624 reports x 1 min x Rs 0.50/min (Sarvam Rs 30/hour)",
+   "cost": 312
+  },
+  {
+   "label": "AI structuring of each report: 624 x Rs 0.25 (estimate)",
+   "cost": 0
+  },
+  {
+   "label": "WhatsApp report messages: 624 x Rs 0.115 (Meta utility rate)",
+   "cost": 72
+  },
+  {
+   "label": "WhatsApp AMC reminders: about 20 x Rs 0.115",
+   "cost": 2
+  },
+  {
+   "label": "Payment gateway: 2% + 18% GST on the fee (Razorpay standard)",
+   "cost": 35
+  }
+ ],
+ "fixed_monthly": [
+  {
+   "label": "Cloud hosting, database, photo storage (estimate)",
+   "cost": 1000
+  },
+  {
+   "label": "Accountant for GST filing (estimate)",
+   "cost": 1500
+  },
+  {
+   "label": "Travel for setup and support visits in Chennai (estimate)",
+   "cost": 500
+  },
+  {
+   "label": "Support phone line and data (estimate)",
+   "cost": 400
+  },
+  {
+   "label": "Domain and email (estimate)",
+   "cost": 300
+  },
+  {
+   "label": "Founder salary (day job; none taken)",
+   "cost": 0
+  }
+ ],
+ "startup": [
+  {
+   "label": "Android test phone (estimate)",
+   "cost": 12000
+  },
+  {
+   "label": "Business and GST registration via a CA (estimate)",
+   "cost": 10000
+  },
+  {
+   "label": "Lawyer review of privacy promise and terms (estimate)",
+   "cost": 10000
+  },
+  {
+   "label": "Free trial months: about 22 trials to reach 11 paying shops if half pass the guarantee (22 x Rs 542)",
+   "cost": 11924
+  },
+  {
+   "label": "Trademark application (estimate; check the IP India fee)",
+   "cost": 4500
+  },
+  {
+   "label": "Speech and AI testing while building (estimate)",
+   "cost": 3000
+  },
+  {
+   "label": "Leaflets and visiting cards (estimate)",
+   "cost": 3000
+  }
+ ],
+ "days_per_month": 1,
+ "capacity_per_day": 20,
+ "plan_per_day": 11,
+ "ramp_per_day": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11
+ ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "I have never heard of AITechnician. If I move my customer reports and AMC records into a new app and the company shuts down in six months, I have lost my records and confused my technicians. WhatsApp and my notebook are clumsy, but I know they will still be there next year.",
+  "objection": "Who is behind this, and will they still be around next year? Also, will my technicians actually use it every day, or will they go back to sending photos on the group after a week?",
+  "would_change_my_mind": "Two or three Chennai service companies my size that I can call, who have used it for six months or more, and a promise in writing that I can export all my job and AMC data if I leave.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 299,
+  "price_too_expensive": 499
+}

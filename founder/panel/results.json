@@ -1,0 +1,148 @@
+{
+ "business": "AITechnician (working name): voice-to-service-report software for AC and appliance service shops",
+ "seed": 956266,
+ "dealt": 20,
+ "answered": 20,
+ "skipped": [],
+ "buys": 14,
+ "passes": 6,
+ "buy_rate": 0.7,
+ "by_segment": [
+  [
+   "Owner of a larger firm, 26 to 50 technicians, with an office coordinator (income in rupees)",
+   3,
+   1.0
+  ],
+  [
+   "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+   11,
+   0.8181818181818182
+  ],
+  [
+   "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+   6,
+   0.3333333333333333
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Does the paperwork at night",
+   3,
+   1.0
+  ],
+  [
+   "Tried an app before",
+   2,
+   1.0
+  ],
+  [
+   "Runs everything on WhatsApp",
+   6,
+   0.8333333333333334
+  ],
+  [
+   "Price-first",
+   4,
+   0.75
+  ],
+  [
+   "Brand service partner",
+   2,
+   0.5
+  ],
+  [
+   "Buys on recommendation",
+   3,
+   0.0
+  ]
+ ],
+ "by_income": [
+  [
+   "under $660,000",
+   6,
+   0.8333333333333334
+  ],
+  [
+   "$1,842,000 and up",
+   7,
+   0.7142857142857143
+  ],
+  [
+   "$660,000 to $1,842,000",
+   7,
+   0.5714285714285714
+  ]
+ ],
+ "why_not": [
+  [
+   "trust",
+   3,
+   [
+    "I don't put my job records and my customers' WhatsApp into the hands of a one-man startup nobody I know is using. The free month is fair, but I'm not going to be one of the first ten to test it.",
+    "Free first month sounds fair, but I don't put my 20 technicians and my customers' WhatsApp on something no owner I know is using yet. Being one of the first 10 shops means I am the test case, and I don't do that."
+   ],
+   [
+    "P001",
+    "P010"
+   ]
+  ],
+  [
+   "habit",
+   3,
+   [
+    "My boys have worked with a phone call and a paper bill for years, and I don't believe 7 out of 10 jobs will ever go through an app, so the free month will just end with nothing. Calling them costs me nothing, and ₹2,499 every month for my size of team is real money next to WhatsApp, which is free.",
+    "My whole shop already runs on the WhatsApp group, the boys send photos and updates there and customers are used to it, so I don't see why I should pay 2,499 a month to change something that works. Maybe I'd let the founder set up the free month, but I don't expect my technicians to put 7 out of 10 jobs through a new app in peak-ish work, so I don't see myself paying."
+   ],
+   [
+    "P006",
+    "P007"
+   ]
+  ]
+ ],
+ "why_yes": [
+  [
+   "need",
+   9,
+   [
+    "Customers fighting me over which part was changed costs me more than 999 a month, and with the photo of the old part on WhatsApp I can shut that down. The first month is free and I only pay if my boys actually use it, so I will sign up for the trial, but I am not promising to keep paying after that.",
+    "I sit up every night writing bills and AMC dates for 30-odd technicians, so ₹4,499 is nothing next to my time. With the first month free and pay-only-if-they-use-it, I lose nothing by letting the founder set it up and watching whether my boys actually press the button."
+   ],
+   [
+    "P002",
+    "P003"
+   ]
+  ],
+  [
+   "convenience",
+   4,
+   [
+    "First month is free and I only pay if my boys actually use it, so I lose nothing by letting the founder set it up. If it stops me phoning eight technicians all day, ₹999 is less than one day's wage for one technician.",
+    "I only say yes because I pay nothing unless my boys actually use it, and the founder comes and sets it up himself in the quiet months, not in May when I have no time to breathe. If the AMC reminders go out on their own, that alone protects money I lose every year from missed renewals."
+   ],
+   [
+    "P005",
+    "P013"
+   ]
+  ],
+  [
+   "price",
+   1,
+   [
+    "The first month costs me nothing and I only pay if my boys actually use it, so there is no risk in letting the founder set it up. With my 30-odd technicians, ₹4,499 works out close to what the ₹99-per-head apps charge, and the AMC reminders alone could save me renewals I lose every year."
+   ],
+   [
+    "P011"
+   ]
+  ]
+ ],
+ "flip": [
+  "A fellow service company owner I trust telling me his technicians have been using it for a few months and it actually works.",
+  "Seeing with my own eyes another Chennai AC shop of my size where the ordinary technicians, not the smart young ones, really use it on every job, and the owner tells me it cut down his phone calls.",
+  "Seeing another Chennai AC service shop my size whose technicians actually use it every day, and proof that the automatic AMC renewal reminders brought back renewals I would have missed.",
+  "If it could also fill in or export the brand's job log so my technicians record each job only once, I would try the free month.",
+  "A fellow AC service owner or my distributor telling me they have used it for a few months and their technicians actually stick with it.",
+  "If a shop owner I trust, or my spares distributor, tells me his technicians have been using it through a full summer and it actually works."
+ ],
+ "purchases_first_month_per_buyer": 1.0,
+ "price_answers": 20
+}

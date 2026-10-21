@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "The disputes about which part was changed are a real headache, and the voice report could help. But during the summer rush my boys are running from job to job, and I cannot stop everyone to learn a new app when WhatsApp already works for us.",
+  "objection": "I have no time to set up new software during the summer rush, and my technicians will not press one more button when they are already late for the next call.",
+  "would_change_my_mind": "If your person comes after the rush, sets it up in under an hour, and shows me the report going into the same WhatsApp my customers already use, so nothing changes for my team except one button.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 299,
+  "price_too_expensive": 499
+}

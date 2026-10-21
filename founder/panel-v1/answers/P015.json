@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "My customer list is my whole business, and I don't know who you are or where my customers' numbers end up. I already paid for one app my boys dropped in a few weeks, so I'm not paying again on a promise.",
+  "objection": "Is my customer list safe with you, or will it go to a competitor or some marketing company? And even if it is safe, my technicians will stop pressing the button after two weeks, like last time.",
+  "would_change_my_mind": "Another Chennai shop owner I know telling me his technicians are still using it after three months, and something in writing that my customer data stays mine and is not shared.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 249,
+  "price_too_expensive": 399
+}

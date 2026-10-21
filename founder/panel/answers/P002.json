@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Customers fighting me over which part was changed costs me more than 999 a month, and with the photo of the old part on WhatsApp I can shut that down. The first month is free and I only pay if my boys actually use it, so I will sign up for the trial, but I am not promising to keep paying after that.",
+  "objection": "My technicians are on rooftops with compressors running and traffic below, talking half Tamil half English. If the report comes out wrong and I have to fix it by hand every evening, it is just one more job for me and I will go back to WhatsApp and paper, which cost nothing.",
+  "would_change_my_mind": "If the founder shows it working live on one of my own technicians on a noisy rooftop during the setup visit and the report comes out right, I will keep paying after the free month without thinking twice.",
+  "price_too_cheap": 199,
+  "price_cheap": 499,
+  "price_expensive": 999,
+  "price_too_expensive": 1999
+}

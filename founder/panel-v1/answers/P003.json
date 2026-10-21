@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "The price is nothing for my firm and the evening paperwork is killing me, but I will not put 40 technicians and all my customer and AMC data on an app from a company I have never heard of. If it shuts down in six months I have retrained everyone for nothing and my records are stuck somewhere.",
+  "objection": "Who is behind this and will it still be around next year? Also, will my older technicians actually press the button after every job, or will I still be phoning them all day?",
+  "would_change_my_mind": "Two or three Chennai service companies of my size that have used it for months and that I can call myself, plus a written promise that I can export all my job and AMC data if I leave.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 399,
+  "price_too_expensive": 699
+}

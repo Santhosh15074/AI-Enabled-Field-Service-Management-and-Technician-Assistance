@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Keisha",
+  "age": 54,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 2341000,
+  "behaviour": "Buys on recommendation",
+  "behaviour_how": "Only tries something a trusted fellow owner, distributor or relative already uses.",
+  "objection": "Who is behind this? Will it still be around next year?",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P002",
+  "name": "Dana",
+  "age": 52,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 439000,
+  "behaviour": "Price-first",
+  "behaviour_how": "Uses free tools wherever possible and compares every paid tool with the cheapest one you have heard of.",
+  "objection": "Will it really understand Tamil and Tanglish on a noisy rooftop?",
+  "habit": "customers sometimes dispute what was done or which part was changed"
+ },
+ {
+  "id": "P003",
+  "name": "Emil",
+  "age": 52,
+  "segment": "Owner of a larger firm, 26 to 50 technicians, with an office coordinator (income in rupees)",
+  "income": 3508000,
+  "behaviour": "Does the paperwork at night",
+  "behaviour_how": "Spends evenings calling technicians and writing up job details, bills and AMC dates yourself.",
+  "objection": "Who is behind this? Will it still be around next year?",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P004",
+  "name": "Ana",
+  "age": 57,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 918000,
+  "behaviour": "Does the paperwork at night",
+  "behaviour_how": "Spends evenings calling technicians and writing up job details, bills and AMC dates yourself.",
+  "objection": "Will it really understand Tamil and Tanglish on a noisy rooftop?",
+  "habit": "customers sometimes dispute what was done or which part was changed"
+ },
+ {
+  "id": "P005",
+  "name": "Raj",
+  "age": 48,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 875000,
+  "behaviour": "Price-first",
+  "behaviour_how": "Uses free tools wherever possible and compares every paid tool with the cheapest one you have heard of.",
+  "objection": "Will it really understand Tamil and Tanglish on a noisy rooftop?",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P006",
+  "name": "Kenji",
+  "age": 54,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 1914000,
+  "behaviour": "Price-first",
+  "behaviour_how": "Uses free tools wherever possible and compares every paid tool with the cheapest one you have heard of.",
+  "objection": "My technicians will not use an app; they barely read English",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P007",
+  "name": "Nico",
+  "age": 34,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 1567000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "WhatsApp is free and it works well enough",
+  "habit": "a big part of your steady income is AMC contracts with apartments and offices"
+ },
+ {
+  "id": "P008",
+  "name": "Chloe",
+  "age": 35,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 604000,
+  "behaviour": "Does the paperwork at night",
+  "behaviour_how": "Spends evenings calling technicians and writing up job details, bills and AMC dates yourself.",
+  "objection": "WhatsApp is free and it works well enough",
+  "habit": "April to June is the AC rush, and you turn away jobs"
+ },
+ {
+  "id": "P009",
+  "name": "Farah",
+  "age": 48,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 421000,
+  "behaviour": "Brand service partner",
+  "behaviour_how": "Does authorised service for one or two AC brands, which make you log their jobs in the brand's own system; your own customers are tracked separately.",
+  "objection": "WhatsApp is free and it works well enough",
+  "habit": "you keep job and AMC records in a notebook and on WhatsApp"
+ },
+ {
+  "id": "P010",
+  "name": "Yara",
+  "age": 39,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 1243000,
+  "behaviour": "Buys on recommendation",
+  "behaviour_how": "Only tries something a trusted fellow owner, distributor or relative already uses.",
+  "objection": "Who is behind this? Will it still be around next year?",
+  "habit": "April to June is the AC rush, and you turn away jobs"
+ },
+ {
+  "id": "P011",
+  "name": "Gabriel",
+  "age": 55,
+  "segment": "Owner of a larger firm, 26 to 50 technicians, with an office coordinator (income in rupees)",
+  "income": 2631000,
+  "behaviour": "Price-first",
+  "behaviour_how": "Uses free tools wherever possible and compares every paid tool with the cheapest one you have heard of.",
+  "objection": "Other job apps cost about ₹99 per technician; why pay more?",
+  "habit": "a big part of your steady income is AMC contracts with apartments and offices"
+ },
+ {
+  "id": "P012",
+  "name": "Omar",
+  "age": 44,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 628000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "Other job apps cost about ₹99 per technician; why pay more?",
+  "habit": "a big part of your steady income is AMC contracts with apartments and offices"
+ },
+ {
+  "id": "P013",
+  "name": "Hana",
+  "age": 58,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 1842000,
+  "behaviour": "Tried an app before",
+  "behaviour_how": "Paid for a job-tracking app once; the technicians stopped using it within weeks and you went back to calls and WhatsApp.",
+  "objection": "I have no time to set up new software during the summer rush",
+  "habit": "a big part of your steady income is AMC contracts with apartments and offices"
+ },
+ {
+  "id": "P014",
+  "name": "Aria",
+  "age": 49,
+  "segment": "Owner of a mid-sized firm, 11 to 25 technicians (income in rupees)",
+  "income": 2254000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "Who is behind this? Will it still be around next year?",
+  "habit": "you keep job and AMC records in a notebook and on WhatsApp"
+ },
+ {
+  "id": "P015",
+  "name": "Mei",
+  "age": 41,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 450000,
+  "behaviour": "Tried an app before",
+  "behaviour_how": "Paid for a job-tracking app once; the technicians stopped using it within weeks and you went back to calls and WhatsApp.",
+  "objection": "Is my customer list safe with you?",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P016",
+  "name": "Ada",
+  "age": 44,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 660000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "WhatsApp is free and it works well enough",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P017",
+  "name": "Grace",
+  "age": 56,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 797000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "I have no time to set up new software during the summer rush",
+  "habit": "customers sometimes dispute what was done or which part was changed"
+ },
+ {
+  "id": "P018",
+  "name": "Dev",
+  "age": 55,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 989000,
+  "behaviour": "Buys on recommendation",
+  "behaviour_how": "Only tries something a trusted fellow owner, distributor or relative already uses.",
+  "objection": "My technicians will not use an app; they barely read English",
+  "habit": "April to June is the AC rush, and you turn away jobs"
+ },
+ {
+  "id": "P019",
+  "name": "Kira",
+  "age": 42,
+  "segment": "Owner of a small shop, 5 to 10 technicians (income in rupees)",
+  "income": 573000,
+  "behaviour": "Brand service partner",
+  "behaviour_how": "Does authorised service for one or two AC brands, which make you log their jobs in the brand's own system; your own customers are tracked separately.",
+  "objection": "Other job apps cost about ₹99 per technician; why pay more?",
+  "habit": "your technicians leave by 9am and you phone each one through the day to know where things stand"
+ },
+ {
+  "id": "P020",
+  "name": "Ines",
+  "age": 38,
+  "segment": "Owner of a larger firm, 26 to 50 technicians, with an office coordinator (income in rupees)",
+  "income": 3024000,
+  "behaviour": "Runs everything on WhatsApp",
+  "behaviour_how": "Customers message you, you forward jobs to a technicians' WhatsApp group, and photos and updates come back by chat.",
+  "objection": "My technicians will not use an app; they barely read English",
+  "habit": "customers sometimes dispute what was done or which part was changed"
+ }
+]

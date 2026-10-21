@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "My boys already have to log every brand job in the brand's own system, and for my own customers the notebook and WhatsApp work well enough and cost nothing. Asking them to push one more app after every job is a fight I don't want, free month or not.",
+  "objection": "This would be a third place to record the same job. If it doesn't talk to the brand system, my technicians are doing double entry and they will just stop using it after a week.",
+  "would_change_my_mind": "If it could also fill in or export the brand's job log so my technicians record each job only once, I would try the free month.",
+  "price_too_cheap": 199,
+  "price_cheap": 499,
+  "price_expensive": 999,
+  "price_too_expensive": 1500
+}

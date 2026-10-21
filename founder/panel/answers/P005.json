@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "First month is free and I only pay if my boys actually use it, so I lose nothing by letting the founder set it up. If it stops me phoning eight technicians all day, ₹999 is less than one day's wage for one technician.",
+  "objection": "My technicians speak fast Tanglish with the compressor running and traffic below. If the report comes out wrong and I have to correct every one, it is more work than WhatsApp, and I am back to calling them.",
+  "would_change_my_mind": "If in the free month the reports from the rooftop come out wrong more often than right, or the boys refuse to press the button, I will not pay.",
+  "price_too_cheap": 199,
+  "price_cheap": 499,
+  "price_expensive": 1500,
+  "price_too_expensive": 2500
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Customers fighting me over which part was changed costs me more than a few thousand rupees a month, and if the boys only have to press one button and talk in Tamil, I can try it free with someone setting it up in my office. I will put it on 5 or 6 technicians first, not all 40, and see if they actually do it.",
+  "objection": "My technicians will not use an app; they barely read English. If they forget to press the button or the Tamil comes out wrong in the report, the customer gets a wrong report on WhatsApp and the dispute becomes worse, not better.",
+  "would_change_my_mind": "If after two weeks most of the technicians stop using it and my coordinator is still chasing them on WhatsApp for photos and updates, I will drop it.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 299,
+  "price_too_expensive": 499
+}

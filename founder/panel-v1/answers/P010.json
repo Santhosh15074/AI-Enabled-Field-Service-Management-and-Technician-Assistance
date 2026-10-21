@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "The price is nothing for my team, but I don't know who is behind this and no owner I know uses it. I'm not putting my customers' WhatsApp and my technicians' daily routine on an unknown app, least of all before the AC rush when I can't afford confusion.",
+  "objection": "Who are these people? If they shut down next year, my AMC dates and job history are gone and I have to retrain my whole team again.",
+  "would_change_my_mind": "A fellow service company owner or my distributor telling me they have used it for a few months and their technicians actually press the button.",
+  "price_too_cheap": 49,
+  "price_cheap": 99,
+  "price_expensive": 399,
+  "price_too_expensive": 699
+}
