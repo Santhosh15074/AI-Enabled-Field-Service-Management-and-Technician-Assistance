@@ -12,12 +12,23 @@ class LoginIn(BaseModel):
 class RegisterIn(BaseModel):
     """Customer self-registration only — see app.routes.auth.register. Phone is mandatory;
     email is optional, since not every customer has or checks one. No address: that's
-    collected when they raise their first complaint instead."""
+    collected when they raise their first complaint instead. `shop` is the slug from the
+    shop's own sign-up link, so the customer lands in that shop and no other."""
 
+    shop: str
     name: str
     phone: str
     password: str
     email: str | None = None
+
+
+class ShopOut(BaseModel):
+    """What the public sign-up page may show about a shop: just enough to confirm it's the right one."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    slug: str
 
 
 class UserOut(BaseModel):
@@ -27,6 +38,7 @@ class UserOut(BaseModel):
     name: str
     email: str | None
     role: str
+    shop_name: str
     # Customers only — None for staff. Lets the frontend know whether the "raise a
     # complaint" form still needs to ask for an address or if one's already on file.
     address: str | None = None
@@ -295,6 +307,21 @@ class ServiceReportIn(BaseModel):
     time_spent_minutes: int | None = None
 
 
+class VoiceNoteOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    request_id: int
+    client_id: str
+    status: str  # pending, transcribing, done or failed
+    transcript: str | None
+    error: str | None  # why it failed, in words a technician can act on
+    duration_seconds: float | None
+    engine: str | None
+    created_at: datetime
+    transcribed_at: datetime | None
+
+
 class ServiceReportOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -320,3 +347,82 @@ class NotificationOut(BaseModel):
 
 class UnreadCountOut(BaseModel):
     count: int
+
+
+# The config portal (app.routes.platform): Sollu operators setting up and configuring shops.
+
+
+class OperatorLoginIn(BaseModel):
+    email: str
+    password: str
+
+
+class OperatorOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+
+
+class ShopSummaryOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    is_active: bool
+    plan: str
+    technician_limit: int
+    monthly_report_limit: int
+    contact_phone: str | None
+    created_at: datetime
+    active_technicians: int
+    customers: int
+    reports_this_month: int
+
+
+class ShopStaffOut(BaseModel):
+    id: int
+    name: str
+    email: str | None
+    role: str
+    is_active: bool
+    skill_area: str | None = None
+
+
+class ShopDetailOut(ShopSummaryOut):
+    staff: list[ShopStaffOut]
+
+
+class CreateShopIn(BaseModel):
+    name: str
+    slug: str
+    plan: str = "starter"
+    contact_phone: str | None = None
+    owner_name: str
+    owner_email: str
+    owner_password: str
+
+
+class UpdateShopIn(BaseModel):
+    """Only the fields sent are changed. Changing the plan resets both limits to that plan's,
+    unless the same request sets them explicitly."""
+
+    name: str | None = None
+    slug: str | None = None
+    is_active: bool | None = None
+    plan: str | None = None
+    technician_limit: int | None = None
+    monthly_report_limit: int | None = None
+    contact_phone: str | None = None
+
+
+class AddShopStaffIn(BaseModel):
+    name: str
+    email: str
+    password: str
+    role: str  # "admin" (an owner) or "technician"
+    skill_area: str | None = None
+
+
+class ResetPasswordIn(BaseModel):
+    password: str

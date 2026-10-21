@@ -1,7 +1,12 @@
 """Database tables.
 
 The ten tables from the First Review report, plus request_status_log, which records every
-status change of a service request (slide 6 of the presentation).
+status change of a service request (slide 6 of the presentation), and shops.
+
+Every user belongs to one shop, and a shop's customers, technicians, equipment and requests are
+only ever visible to that shop's own staff — see app.shops for the queries that enforce it.
+Complaint categories are shared reference data; knowledge-base entries belong to a shop, since
+its admin edits them.
 
 Owned records use ON DELETE CASCADE: deleting a user removes their customer or technician
 profile, and deleting a customer removes their equipment and requests. References that are
@@ -63,9 +68,65 @@ class NotificationStatus(enum.StrEnum):
     READ = "read"
 
 
+class VoiceNoteStatus(enum.StrEnum):
+    PENDING = "pending"  # uploaded, waiting for its turn to be transcribed
+    TRANSCRIBING = "transcribing"
+    DONE = "done"
+    FAILED = "failed"
+
+
+class Plan(enum.StrEnum):
+    STARTER = "starter"
+    GROWTH = "growth"
+    PRO = "pro"
+
+
+# (technicians, reports a month) each plan includes — founder/pricing.md. A shop's own limits start
+# from these and can be changed one shop at a time in the config portal.
+PLAN_LIMITS = {Plan.STARTER: (10, 750), Plan.GROWTH: (25, 2000), Plan.PRO: (50, 4000)}
+
+
 def _one_of(column: str, values: type[enum.StrEnum]) -> CheckConstraint:
     allowed = ", ".join(f"'{v.value}'" for v in values)
     return CheckConstraint(f"{column} IN ({allowed})", name=f"{column}_valid")
+
+
+class Shop(Base):
+    """One customer business: an AC or appliance service shop with its own staff and customers.
+    Set up and configured only by a Sollu operator, in the config portal (app.routes.platform)."""
+
+    __tablename__ = "shops"
+    __table_args__ = (_one_of("plan", Plan),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    # Short and URL-safe, for the shop's own customer sign-up link: /portal/register?shop=<slug>.
+    slug: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    # A deactivated shop's staff and customers can't log in, and its sign-up link stops working.
+    is_active: Mapped[bool] = mapped_column(default=True)
+    plan: Mapped[str] = mapped_column(String(20), default=Plan.STARTER)
+    # Enforced: an owner can't add or reactivate a technician past this.
+    technician_limit: Mapped[int] = mapped_column(Integer, default=PLAN_LIMITS[Plan.STARTER][0])
+    # Not enforced (the plan promises no overage charges); shown in the config portal so the
+    # operator can call a shop that keeps going over.
+    monthly_report_limit: Mapped[int] = mapped_column(Integer, default=PLAN_LIMITS[Plan.STARTER][1])
+    # Who the operator calls about the shop; usually the owner's mobile.
+    contact_phone: Mapped[str | None] = mapped_column(String(20))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Operator(Base):
+    """A Sollu staff member who sets up and configures shops in the config portal. Entirely
+    separate from shop accounts (User): its own table, login and cookie, and no shop."""
+
+    __tablename__ = "operators"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(100))
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    password_hash: Mapped[str] = mapped_column(String(60))
+    is_active: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class User(Base):
@@ -73,6 +134,7 @@ class User(Base):
     __table_args__ = (_one_of("role", Role),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(ForeignKey("shops.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(100))
     # Optional because customers may register with only a phone number (see Customer.phone,
     # the mandatory field for them). A plain unique index already allows any number of NULLs
@@ -89,6 +151,11 @@ class User(Base):
     technician: Mapped["Technician | None"] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
+    shop: Mapped[Shop] = relationship()
+
+    @property
+    def shop_name(self) -> str:
+        return self.shop.name
 
     @property
     def address(self) -> str | None:
@@ -212,6 +279,7 @@ class KnowledgeBaseEntry(Base):
     __tablename__ = "knowledge_base"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    shop_id: Mapped[int] = mapped_column(ForeignKey("shops.id", ondelete="CASCADE"), index=True)
     category_id: Mapped[int] = mapped_column(
         ForeignKey("complaint_categories.id", ondelete="CASCADE"), index=True
     )
@@ -234,6 +302,34 @@ class ServiceReport(Base):
     parts_used: Mapped[str | None] = mapped_column(Text)
     time_spent_minutes: Mapped[int | None] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class VoiceNote(Base):
+    """A technician's spoken account of a job, recorded on their phone and transcribed on the
+    server — see app.routes.voice_notes. The audio stays on disk (Settings.media_dir) so a wrong
+    transcript can be checked against what was actually said."""
+
+    __tablename__ = "voice_notes"
+    __table_args__ = (_one_of("status", VoiceNoteStatus),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    request_id: Mapped[int] = mapped_column(ForeignKey("service_requests.id", ondelete="CASCADE"), index=True)
+    recorded_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    # Generated by the phone when recording starts. A retried upload (weak signal, app reopened)
+    # sends the same id, so it's stored once however many times it arrives.
+    client_id: Mapped[str] = mapped_column(String(64), unique=True)
+    # Relative to Settings.media_dir.
+    audio_path: Mapped[str] = mapped_column(String(255))
+    content_type: Mapped[str] = mapped_column(String(100))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    duration_seconds: Mapped[float | None] = mapped_column(Float)
+    status: Mapped[str] = mapped_column(String(20), default=VoiceNoteStatus.PENDING)
+    transcript: Mapped[str | None] = mapped_column(Text)
+    # Which engine and model produced the transcript, e.g. "local:vasista22/whisper-tamil-small".
+    engine: Mapped[str | None] = mapped_column(String(150))
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    transcribed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class PredictionLog(Base):

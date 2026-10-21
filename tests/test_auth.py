@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from app.accounts import AccountError, create_user
 from app.models import Customer, Role, User
 from app.routes.auth import _conflicting_field
-from tests.conftest import PASSWORD, log_in
+from tests.conftest import DEFAULT_SHOP_ID, DEFAULT_SHOP_SLUG, PASSWORD, log_in
 
 OVERVIEWS = {
     Role.ADMIN: "/api/overview/admin",
@@ -16,6 +16,7 @@ OVERVIEWS = {
 
 def register(client, **overrides):
     data = {
+        "shop": DEFAULT_SHOP_SLUG,
         "name": "Priya",
         "phone": "+91 98765 43210",
         "password": PASSWORD,
@@ -132,14 +133,14 @@ class TestCreateUser:
 
     def test_staff_requires_an_email(self, db_session):
         with pytest.raises(AccountError, match="email"):
-            create_user(db_session, name="Ravi", password=PASSWORD, role=Role.TECHNICIAN)
+            create_user(db_session, shop_id=DEFAULT_SHOP_ID, name="Ravi", password=PASSWORD, role=Role.TECHNICIAN)
 
     def test_customer_requires_a_phone(self, db_session):
         with pytest.raises(AccountError, match="phone"):
-            create_user(db_session, name="Priya", password=PASSWORD, role=Role.CUSTOMER)
+            create_user(db_session, shop_id=DEFAULT_SHOP_ID, name="Priya", password=PASSWORD, role=Role.CUSTOMER)
 
     def test_customer_can_skip_email(self, db_session):
-        user = create_user(db_session, name="Priya", password=PASSWORD, role=Role.CUSTOMER, phone="+919876543210")
+        user = create_user(db_session, shop_id=DEFAULT_SHOP_ID, name="Priya", password=PASSWORD, role=Role.CUSTOMER, phone="+919876543210")
 
         assert user.email is None
         assert user.customer.phone == "+919876543210"

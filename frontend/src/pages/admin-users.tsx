@@ -16,7 +16,7 @@ import { useCreateStaffUser, useSetUserActive, useUsers, type StaffRole } from '
 
 const EMPTY = { name: '', email: '', password: '', role: 'technician' as StaffRole, skill_area: '' }
 
-const ROLE_LABEL: Record<string, string> = { admin: 'Admin', technician: 'Technician', customer: 'Customer' }
+const ROLE_LABEL: Record<string, string> = { admin: 'Owner / admin', technician: 'Technician', customer: 'Customer' }
 
 export function AdminUsersPage() {
   const { data: me } = useCurrentUser()
@@ -86,7 +86,7 @@ export function AdminUsersPage() {
                     <FieldLabel htmlFor="staff-role">Role</FieldLabel>
                     <NativeSelect id="staff-role" value={form.role} onChange={update('role')}>
                       <option value="technician">Technician</option>
-                      <option value="admin">Admin</option>
+                      <option value="admin">Owner / admin (sees everything in the shop)</option>
                     </NativeSelect>
                   </Field>
                 </div>

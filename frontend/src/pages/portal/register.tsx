@@ -1,18 +1,53 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AlertCircleIcon, Loader2Icon } from 'lucide-react'
+
+import { FullPageSpinner } from '@/components/full-page-spinner'
 
 import { Brand } from '@/components/brand'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { useRegister } from '@/lib/auth'
+import { useRegister, useShop, type Shop } from '@/lib/auth'
 
 const EMPTY = { name: '', phone: '', email: '', password: '', confirm: '' }
 
-/** Customer self-sign-up. Admin and technician accounts are created by an admin instead. */
+/** Customer self-sign-up, through a shop's own link (/portal/register?shop=<slug>), so the
+ * customer joins that shop. Admin and technician accounts are created by the shop's owner instead. */
 export function CustomerRegisterPage() {
+  const [params] = useSearchParams()
+  const slug = params.get('shop')
+  const shop = useShop(slug)
+
+  if (slug && shop.isPending) return <FullPageSpinner />
+  if (!slug || !shop.data) {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center p-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-8 flex justify-center">
+            <Brand />
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight">Use your service company's link</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {shop.isError
+              ? shop.error.message
+              : 'Sign up through the link your AC or appliance service company sent you, so your requests go to them.'}
+          </p>
+          <p className="mt-8 text-sm text-muted-foreground">
+            Already registered?{' '}
+            <Link to="/portal/login" className="font-medium text-primary underline-offset-4 hover:underline">
+              Log in
+            </Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
+  return <RegisterForm shop={shop.data} />
+}
+
+function RegisterForm({ shop }: { shop: Shop }) {
   const navigate = useNavigate()
   const register = useRegister()
   const [form, setForm] = useState(EMPTY)
@@ -31,6 +66,7 @@ export function CustomerRegisterPage() {
     }
     register.mutate(
       {
+        shop: shop.slug,
         name: form.name,
         phone: form.phone,
         password: form.password,
@@ -55,7 +91,8 @@ export function CustomerRegisterPage() {
 
         <h1 className="text-center text-xl font-semibold tracking-tight">Create your account</h1>
         <p className="mt-1.5 text-center text-sm text-muted-foreground">
-          For customers submitting service requests. Staff accounts are created by an admin.
+          For customers of <span className="font-medium text-foreground">{shop.name}</span>. Staff accounts are created by
+          the shop's owner.
         </p>
 
         {error && (

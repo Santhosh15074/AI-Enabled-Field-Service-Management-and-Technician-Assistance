@@ -10,6 +10,8 @@ export type User = {
   // Optional: customers may register with only a phone number. Staff always have one.
   email: string | null
   role: Role
+  // Every account belongs to one shop, and only ever sees that shop's data.
+  shop_name: string
   // Customers only — null for staff, and null for a customer who hasn't raised a
   // complaint yet (that's when it's first asked for).
   address: string | null
@@ -22,7 +24,7 @@ export const ROLE_HOME: Record<Role, string> = {
 }
 
 export const ROLE_LABEL: Record<Role, string> = {
-  admin: 'Admin',
+  admin: 'Owner',
   customer: 'Customer',
   technician: 'Technician',
 }
@@ -71,6 +73,8 @@ export function useLogout() {
 }
 
 export type RegisterInput = {
+  // The slug from the shop's sign-up link, /portal/register?shop=<slug>.
+  shop: string
   name: string
   phone: string
   password: string
@@ -81,6 +85,24 @@ export type RegisterInput = {
 export function useRegister() {
   return useMutation({
     mutationFn: (body: RegisterInput) => api<User>('/api/auth/register', { method: 'POST', body }),
+  })
+}
+
+export type Shop = { name: string; slug: string }
+
+/** The shop a sign-up link is for, or null if the link's slug doesn't match any shop. */
+export function useShop(slug: string | null) {
+  return useQuery({
+    queryKey: ['shops', slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      try {
+        return await api<Shop>(`/api/shops/${encodeURIComponent(slug!)}`)
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 404) return null
+        throw error
+      }
+    },
   })
 }
 

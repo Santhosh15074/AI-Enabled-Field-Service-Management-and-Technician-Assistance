@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AlertCircleIcon, CheckIcon, Loader2Icon, MicIcon, SearchIcon, SquareIcon } from 'lucide-react'
+import { AlertCircleIcon, CheckIcon, Loader2Icon, SearchIcon } from 'lucide-react'
 
 import { PageTitle } from '@/components/dashboard'
+import { VoiceNotesPanel } from '@/components/voice-notes-panel'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreateReport, useExtractReport, useReport } from '@/lib/reports'
-import { SPEECH_TO_TEXT_SUPPORTED, useSpeechToText } from '@/lib/speech-to-text'
 
 export function TechnicianReportPage() {
   const { id } = useParams()
@@ -26,7 +26,8 @@ export function TechnicianReportPage() {
   const [partsUsed, setPartsUsed] = useState('')
   const [timeSpent, setTimeSpent] = useState('')
 
-  const speech = useSpeechToText((phrase) => setReportText((text) => (text ? `${text} ${phrase}` : phrase)))
+  const addToReport = (more: string) => setReportText((text) => (text.trim() ? `${text.trim()}
+${more}` : more))
 
   function applyExtraction() {
     extract.mutate(reportText, {
@@ -68,7 +69,7 @@ export function TechnicianReportPage() {
     <>
       <PageTitle
         title={readOnly ? 'Service report' : 'Write a service report'}
-        description={`Request #${requestId}${readOnly ? '' : ' — describe what you found and did; type or dictate it.'}`}
+        description={`Request #${requestId}${readOnly ? '' : ' — record what you found and did, or type it.'}`}
       />
 
       <Card className="max-w-2xl">
@@ -81,6 +82,13 @@ export function TechnicianReportPage() {
           )}
 
           <FieldGroup>
+            {!readOnly && (
+              <Field>
+                <FieldLabel>Voice notes</FieldLabel>
+                <VoiceNotesPanel requestId={requestId} onUseTranscript={addToReport} />
+              </Field>
+            )}
+
             <Field>
               <FieldLabel htmlFor="report-text">Report</FieldLabel>
               <Textarea
@@ -93,12 +101,6 @@ export function TechnicianReportPage() {
               />
               {!readOnly && (
                 <div className="flex flex-wrap gap-2">
-                  {SPEECH_TO_TEXT_SUPPORTED && (
-                    <Button type="button" variant="outline" size="sm" onClick={speech.toggle}>
-                      {speech.listening ? <SquareIcon aria-hidden="true" /> : <MicIcon aria-hidden="true" />}
-                      {speech.listening ? 'Stop dictating' : 'Dictate'}
-                    </Button>
-                  )}
                   <Button
                     type="button"
                     variant="outline"
@@ -110,9 +112,6 @@ export function TechnicianReportPage() {
                     Extract details
                   </Button>
                 </div>
-              )}
-              {!SPEECH_TO_TEXT_SUPPORTED && !readOnly && (
-                <FieldDescription>Dictation isn't supported in this browser — try Chrome, or just type the report.</FieldDescription>
               )}
             </Field>
 

@@ -611,7 +611,7 @@ class TestSuggestions:
         entry = SimpleNamespace(equipment_type="Pump", issue_pattern="the pump is leaking", suggested_fix="Tighten the fitting.")
         calls = []
 
-        def fake(db, description, limit=3):
+        def fake(db, description, *, shop_id, limit=3):
             calls.append(description)
             return [(entry, 0.87)]
 

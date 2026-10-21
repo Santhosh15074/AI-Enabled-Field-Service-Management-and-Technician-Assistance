@@ -44,7 +44,9 @@ export function AppShell() {
         <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4" />
-          <span className="text-sm text-muted-foreground">{ROLE_LABEL[user.role]} workspace</span>
+          <span className="truncate text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{user.shop_name}</span> · {ROLE_LABEL[user.role]}
+          </span>
           <div className="ml-auto">
             <NotificationBell />
           </div>

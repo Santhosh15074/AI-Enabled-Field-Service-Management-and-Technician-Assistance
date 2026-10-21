@@ -1,6 +1,7 @@
-"""Admin management of staff accounts — the in-app counterpart to scripts/create_user.py,
-mentioned as "a later phase" in the docstring on app.accounts. Customers still only ever sign
-themselves up through the portal; nothing here can create one.
+"""A shop owner managing their own shop's staff accounts. Shops themselves, their plans and
+limits, and password resets are configured by a Sollu operator in the config portal instead
+(app.routes.platform). Customers still only ever sign themselves up through the portal;
+nothing here can create one.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,11 +9,12 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
-from app.accounts import AccountError, create_user
+from app.accounts import AccountError, create_user, technician_limit_problem
 from app.database import get_db
 from app.deps import require_role
 from app.models import Role, User
 from app.schemas import CreateStaffUserIn, SetUserActiveIn, StaffUserOut
+from app.shops import not_found_outside_shop
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -33,22 +35,25 @@ def _serialize(user: User) -> StaffUserOut:
 
 
 @router.get("", response_model=list[StaffUserOut])
-def list_users(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+def list_users(admin: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
     users = db.scalars(
-        select(User).options(joinedload(User.customer), joinedload(User.technician)).order_by(User.role, User.name)
+        select(User)
+        .options(joinedload(User.customer), joinedload(User.technician))
+        .where(User.shop_id == admin.shop_id)
+        .order_by(User.role, User.name)
     ).all()
     return [_serialize(user) for user in users]
 
 
 @router.post("", response_model=StaffUserOut, status_code=201)
 def create_staff_user(
-    body: CreateStaffUserIn, _admin: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)
+    body: CreateStaffUserIn, admin: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)
 ):
     if body.role not in STAFF_ROLES:
         raise HTTPException(status_code=400, detail="Role must be admin or technician.")
     try:
         user = create_user(
-            db, name=body.name, email=body.email, password=body.password, role=Role(body.role), skill_area=body.skill_area
+            db, shop_id=admin.shop_id, name=body.name, email=body.email, password=body.password, role=Role(body.role), skill_area=body.skill_area
         )
     except AccountError as error:
         raise HTTPException(status_code=400, detail=str(error))
@@ -67,6 +72,10 @@ def set_active(
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="That user doesn't exist.")
+    not_found_outside_shop(user.shop_id, admin, "That user doesn't exist.")
+    if body.is_active and not user.is_active and user.technician:
+        if problem := technician_limit_problem(db, user.shop_id):
+            raise HTTPException(status_code=400, detail=problem)
     user.is_active = body.is_active
     db.commit()
     return _serialize(user)

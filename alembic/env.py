@@ -35,6 +35,12 @@ def run_migrations_online() -> None:
     engine = make_engine(database_url())
     try:
         with engine.connect() as connection:
+            if connection.dialect.name == "sqlite":
+                # Batch mode rebuilds a table by dropping and recreating it; with foreign keys on,
+                # dropping it would cascade-delete every row that references it (dropping shops
+                # would empty users). Off for the migration only; it must be set outside a transaction.
+                connection.exec_driver_sql("PRAGMA foreign_keys=OFF")
+                connection.commit()
             context.configure(
                 connection=connection,
                 target_metadata=target_metadata,

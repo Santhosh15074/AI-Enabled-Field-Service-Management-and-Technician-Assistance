@@ -18,6 +18,7 @@ from app.models import (
     User,
 )
 from app.schemas import AdminOverview, CustomerOverview, TechnicianOverview
+from app.shops import customer_ids, equipment_ids, technician_ids
 
 router = APIRouter(prefix="/api/overview", tags=["overview"])
 
@@ -29,17 +30,21 @@ def _count(db: Session, query) -> int:
 
 
 @router.get("/admin", response_model=AdminOverview)
-def admin_overview(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+def admin_overview(user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
     latest_prediction = (
         select(PredictionLog.equipment_id, func.max(PredictionLog.id).label("id"))
+        .where(PredictionLog.equipment_id.in_(equipment_ids(user.shop_id)))
         .group_by(PredictionLog.equipment_id)
         .subquery()
     )
     return AdminOverview(
-        customers=_count(db, select(func.count(Customer.id))),
-        technicians=_count(db, select(func.count(Technician.id))),
+        customers=_count(db, select(func.count(Customer.id)).where(Customer.id.in_(customer_ids(user.shop_id)))),
+        technicians=_count(db, select(func.count(Technician.id)).where(Technician.id.in_(technician_ids(user.shop_id)))),
         open_requests=_count(
-            db, select(func.count(ServiceRequest.id)).where(ServiceRequest.status.in_(UNRESOLVED))
+            db,
+            select(func.count(ServiceRequest.id)).where(
+                ServiceRequest.status.in_(UNRESOLVED), ServiceRequest.customer_id.in_(customer_ids(user.shop_id))
+            ),
         ),
         critical_equipment=_count(
             db,

@@ -3,9 +3,13 @@
 Customers are the general public — people with equipment to service — so they sign
 themselves up through the customer portal (see app.routes.auth.register). A phone number
 is all that's required of them; email is optional, since not every customer has or checks
-one. Admins and technicians are an organization's own staff: those accounts are provisioned
-by an admin, via scripts/create_user.py today and an in-app admin screen in a later phase,
-never by public sign-up, and they're still identified by email.
+one. Admins and technicians are a shop's own staff: those accounts are provisioned by that
+shop's admin (the owner) in the app, or by a Sollu operator in the config portal, never by
+public sign-up, and they're still identified by email.
+
+Every account belongs to exactly one shop (see app.shops). Emails and customer phone numbers
+are still unique across all shops, because they're what people log in with and login doesn't
+ask which shop you're from.
 """
 
 import re
@@ -13,7 +17,7 @@ import re
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.models import Customer, Role, Technician, User
+from app.models import Customer, Operator, Role, Shop, Technician, User
 from app.security import hash_password, password_problem
 
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -49,9 +53,21 @@ def find_user_by_identifier(db: Session, identifier: str) -> User | None:
     return find_user_by_email(db, identifier) or find_user_by_phone(db, identifier)
 
 
+def technician_limit_problem(db: Session, shop_id: int) -> str | None:
+    """Why the shop can't have one more active technician, or None if it can (see Shop.technician_limit)."""
+    shop = db.get(Shop, shop_id)
+    active = db.scalar(
+        select(func.count(Technician.id)).join(User).where(User.shop_id == shop_id, User.is_active)
+    )
+    if (active or 0) >= shop.technician_limit:
+        return f"This shop's plan allows {shop.technician_limit} active technicians. Call Sollu to move up a plan."
+    return None
+
+
 def create_user(
     db: Session,
     *,
+    shop_id: int,
     name: str,
     password: str,
     role: Role,
@@ -96,11 +112,13 @@ def create_user(
             raise AccountError("Enter an email address.")
         if not EMAIL_PATTERN.match(email) or len(email) > 255:
             raise AccountError("Enter a valid email address, like name@example.com.")
+    if role == Role.TECHNICIAN and (problem := technician_limit_problem(db, shop_id)):
+        raise AccountError(problem)
 
     if email and find_user_by_email(db, email):
         raise AccountError("An account with this email already exists.")
 
-    user = User(name=name, email=email, password_hash=hash_password(password), role=role)
+    user = User(shop_id=shop_id, name=name, email=email, password_hash=hash_password(password), role=role)
     if role == Role.CUSTOMER:
         user.customer = Customer(address=(address or "").strip() or None, phone=phone)
     elif role == Role.TECHNICIAN:
@@ -109,3 +127,26 @@ def create_user(
     db.add(user)
     db.commit()
     return user
+
+
+def find_operator_by_email(db: Session, email: str) -> Operator | None:
+    return db.scalar(select(Operator).where(func.lower(Operator.email) == normalise_email(email)))
+
+
+def create_operator(db: Session, *, name: str, email: str, password: str) -> Operator:
+    """A Sollu operator for the config portal — see scripts/create_operator.py. Commits."""
+    name = name.strip()
+    email = normalise_email(email)
+    if not name:
+        raise AccountError("Enter a name.")
+    if not EMAIL_PATTERN.match(email) or len(email) > 255:
+        raise AccountError("Enter a valid email address, like name@example.com.")
+    if problem := password_problem(password):
+        raise AccountError(problem)
+    if find_operator_by_email(db, email):
+        raise AccountError("An operator with this email already exists.")
+
+    operator = Operator(name=name, email=email, password_hash=hash_password(password))
+    db.add(operator)
+    db.commit()
+    return operator

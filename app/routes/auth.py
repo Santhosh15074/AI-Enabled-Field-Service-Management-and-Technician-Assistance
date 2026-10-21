@@ -8,6 +8,7 @@ from app.deps import get_current_user
 from app.models import Role, User
 from app.schemas import LoginIn, RegisterIn, UserOut
 from app.security import DUMMY_HASH, verify_password
+from app.shops import find_shop_by_slug
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -32,7 +33,12 @@ def login(body: LoginIn, request: Request, db: Session = Depends(get_db)):
     user = find_user_by_identifier(db, body.identifier)
     if user is None:
         verify_password(body.password, DUMMY_HASH)
-    if user is None or not verify_password(body.password, user.password_hash) or not user.is_active:
+    if (
+        user is None
+        or not verify_password(body.password, user.password_hash)
+        or not user.is_active
+        or not user.shop.is_active
+    ):
         raise HTTPException(status_code=401, detail="That login and password don't match.")
 
     # A fresh session on every login, so nothing from before the login carries over.
@@ -55,13 +61,18 @@ def me(user: User = Depends(get_current_user)):
 @router.post("/register", response_model=UserOut, status_code=201)
 def register(body: RegisterIn, db: Session = Depends(get_db)):
     """The customer portal's sign-up. Always creates a customer — there is no way for a
-    caller to request another role here. Admins and technicians are created by an admin
-    (see scripts/create_user.py), never through this endpoint. No address is collected here;
-    that's asked for when the customer raises their first complaint.
+    caller to request another role here. Owners and technicians are created by the shop's owner
+    or in the config portal (app.routes.platform), never through this endpoint. No address is collected here;
+    that's asked for when the customer raises their first complaint. The shop comes from the
+    shop's own sign-up link (/portal/register?shop=<slug>).
     """
+    shop = find_shop_by_slug(db, body.shop, active_only=True)
+    if shop is None:
+        raise HTTPException(status_code=400, detail="This sign-up link isn't valid. Ask your service company for theirs.")
     try:
         return create_user(
             db,
+            shop_id=shop.id,
             name=body.name,
             email=body.email,
             password=body.password,

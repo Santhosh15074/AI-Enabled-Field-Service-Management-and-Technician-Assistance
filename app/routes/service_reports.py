@@ -13,14 +13,16 @@ from app.deps import require_role
 from app.models import Role, ServiceReport, ServiceRequest, User
 from app.report_extraction import extract_fields
 from app.schemas import ExtractedFieldsOut, ReportExtractIn, ServiceReportIn, ServiceReportOut
+from app.shops import not_found_outside_shop
 
 router = APIRouter(prefix="/api/requests", tags=["reports"])
 
 
-def _get_request_for(request_id: int, user: User, db: Session) -> ServiceRequest:
+def get_request_for(request_id: int, user: User, db: Session) -> ServiceRequest:
     request = db.get(ServiceRequest, request_id)
     if request is None:
         raise HTTPException(status_code=404, detail="That service request doesn't exist.")
+    not_found_outside_shop(request.customer.user.shop_id, user, "That service request doesn't exist.")
     if user.role == Role.TECHNICIAN and request.technician_id != user.technician.id:
         raise HTTPException(status_code=403, detail="This request isn't assigned to you.")
     if user.role == Role.CUSTOMER and request.customer_id != user.customer.id:
@@ -37,7 +39,7 @@ def extract_report(
 ):
     """A preview only — nothing is saved. The technician reviews and can correct every field
     before submitting them for real via create_report."""
-    _get_request_for(request_id, user, db)
+    get_request_for(request_id, user, db)
     return asdict(extract_fields(body.report_text))
 
 
@@ -48,7 +50,7 @@ def create_report(
     user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)),
     db: Session = Depends(get_db),
 ):
-    request = _get_request_for(request_id, user, db)
+    request = get_request_for(request_id, user, db)
     if db.scalar(select(ServiceReport).where(ServiceReport.request_id == request.id)) is not None:
         raise HTTPException(status_code=400, detail="This request already has a report.")
 
@@ -75,7 +77,7 @@ def get_report(
     user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN, Role.CUSTOMER)),
     db: Session = Depends(get_db),
 ):
-    request = _get_request_for(request_id, user, db)
+    request = get_request_for(request_id, user, db)
     report = db.scalar(select(ServiceReport).where(ServiceReport.request_id == request.id))
     if report is None:
         raise HTTPException(status_code=404, detail="This request doesn't have a report yet.")

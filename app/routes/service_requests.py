@@ -37,6 +37,7 @@ from app.schemas import (
     SuggestionOut,
     TechnicianSummary,
 )
+from app.shops import customer_ids, not_found_outside_shop
 
 router = APIRouter(prefix="/api/requests", tags=["requests"])
 
@@ -78,7 +79,7 @@ def create_request(
     on_behalf = user.role != Role.CUSTOMER
     if on_behalf:
         customer = db.get(Customer, body.customer_id) if body.customer_id is not None else None
-        if customer is None or not customer.user.is_active:
+        if customer is None or not customer.user.is_active or customer.user.shop_id != user.shop_id:
             raise HTTPException(status_code=400, detail="Select the customer this request is for.")
     else:
         customer = user.customer
@@ -157,27 +158,32 @@ def list_assigned_requests(user: User = Depends(require_role(Role.TECHNICIAN)), 
 
 
 @router.get("", response_model=list[ServiceRequestOut])
-def list_all_requests(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+def list_all_requests(user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
     requests = db.scalars(
-        select(ServiceRequest).options(*_WITH_RELATED).order_by(ServiceRequest.created_at.desc(), ServiceRequest.id.desc())
+        select(ServiceRequest)
+        .options(*_WITH_RELATED)
+        .where(ServiceRequest.customer_id.in_(customer_ids(user.shop_id)))
+        .order_by(ServiceRequest.created_at.desc(), ServiceRequest.id.desc())
     ).all()
     return _with_equipment_risk(requests, db)
 
 
 @router.get("/technicians", response_model=list[TechnicianSummary])
-def list_technicians_for_assignment(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
-    return db.scalars(select(Technician).join(User).where(User.is_active).order_by(User.name)).all()
+def list_technicians_for_assignment(user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+    return db.scalars(
+        select(Technician).join(User).where(User.is_active, User.shop_id == user.shop_id).order_by(User.name)
+    ).all()
 
 
 @router.get("/customers", response_model=list[CustomerChoice])
 def list_customers_for_requests(
-    _user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
+    user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
 ):
     """Active customers and their equipment, for staff raising a request on someone's behalf."""
     return db.scalars(
         select(Customer)
         .join(User)
-        .where(User.is_active)
+        .where(User.is_active, User.shop_id == user.shop_id)
         .options(joinedload(Customer.user), selectinload(Customer.equipment))
         .order_by(User.name)
     ).all()
@@ -205,24 +211,22 @@ def _serialize_suggestions(matches: list[tuple[KnowledgeBaseEntry, float]]) -> l
 @router.post("/suggestions", response_model=list[SuggestionOut])
 def suggest_for_description(
     body: SuggestionIn,
-    _user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN, Role.TECHNICIAN)),
+    user: User = Depends(require_role(Role.CUSTOMER, Role.ADMIN, Role.TECHNICIAN)),
     db: Session = Depends(get_db),
 ):
     """Tried before a request is even submitted, so a customer (or staff taking their call) can
     attempt an easy fix first — see the "Check for a quick fix" button on the new-request form."""
-    return _serialize_suggestions(suggest_fixes(db, body.description))
+    return _serialize_suggestions(suggest_fixes(db, body.description, shop_id=user.shop_id))
 
 
 @router.get("/{request_id}/suggestions", response_model=list[SuggestionOut])
 def suggest_for_request(
     request_id: int, user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
 ):
-    request = db.get(ServiceRequest, request_id)
-    if request is None:
-        raise HTTPException(status_code=404, detail="That service request doesn't exist.")
+    request = _get_request_in_shop(db, request_id, user)
     if user.role == Role.TECHNICIAN and request.technician_id != user.technician.id:
         raise HTTPException(status_code=403, detail="This request isn't assigned to you.")
-    return _serialize_suggestions(suggest_fixes(db, request.description))
+    return _serialize_suggestions(suggest_fixes(db, request.description, shop_id=user.shop_id))
 
 
 @router.patch("/{request_id}", response_model=ServiceRequestOut)
@@ -232,9 +236,7 @@ def update_request(
     user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)),
     db: Session = Depends(get_db),
 ):
-    request = db.scalar(select(ServiceRequest).options(*_WITH_RELATED).where(ServiceRequest.id == request_id))
-    if request is None:
-        raise HTTPException(status_code=404, detail="That service request doesn't exist.")
+    request = _get_request_in_shop(db, request_id, user, *_WITH_RELATED)
     if body.technician_id is None and body.status is None:
         raise HTTPException(status_code=400, detail="Nothing to update.")
 
@@ -242,7 +244,7 @@ def update_request(
         if user.role != Role.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can assign a technician.")
         technician = db.get(Technician, body.technician_id)
-        if technician is None:
+        if technician is None or technician.user.shop_id != user.shop_id:
             raise HTTPException(status_code=400, detail="Select a valid technician.")
         # Assigning the related object, not just technician_id, so the .technician relationship
         # this same request already loaded above reflects the change immediately — setting only
@@ -266,6 +268,15 @@ def update_request(
 
     db.commit()
     return _with_equipment_risk([request], db)[0]
+
+
+def _get_request_in_shop(db: Session, request_id: int, user: User, *options) -> ServiceRequest:
+    request = db.scalar(select(ServiceRequest).options(*options).where(ServiceRequest.id == request_id))
+    detail = "That service request doesn't exist."
+    if request is None:
+        raise HTTPException(status_code=404, detail=detail)
+    not_found_outside_shop(request.customer.user.shop_id, user, detail)
+    return request
 
 
 def _transition(db: Session, request: ServiceRequest, new_status: RequestStatus, actor: User) -> None:

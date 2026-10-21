@@ -3,6 +3,7 @@ import pytest
 from sqlalchemy import delete
 
 from app.ml import troubleshooting
+from tests.conftest import DEFAULT_SHOP_ID
 from app.models import ComplaintCategory, KnowledgeBaseEntry
 
 
@@ -54,11 +55,11 @@ def clean_kb(db_session):
 
 def test_matches_by_meaning_not_exact_wording(db_session, category, clean_kb):
     db_session.add(
-        KnowledgeBaseEntry(category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
+        KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
     )
     db_session.commit()
 
-    matches = troubleshooting.suggest_fixes(db_session, "water is dripping from the pump")
+    matches = troubleshooting.suggest_fixes(db_session, "water is dripping from the pump", shop_id=DEFAULT_SHOP_ID)
 
     assert len(matches) == 1
     entry, score = matches[0]
@@ -68,30 +69,30 @@ def test_matches_by_meaning_not_exact_wording(db_session, category, clean_kb):
 
 def test_nothing_below_the_similarity_threshold_is_returned(db_session, category, clean_kb):
     db_session.add(
-        KnowledgeBaseEntry(category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
+        KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
     )
     db_session.commit()
 
-    assert troubleshooting.suggest_fixes(db_session, "completely unrelated electrical fault") == []
+    assert troubleshooting.suggest_fixes(db_session, "completely unrelated electrical fault", shop_id=DEFAULT_SHOP_ID) == []
 
 
 def test_empty_knowledge_base_returns_no_suggestions(db_session, clean_kb):
-    assert troubleshooting.suggest_fixes(db_session, "anything at all") == []
+    assert troubleshooting.suggest_fixes(db_session, "anything at all", shop_id=DEFAULT_SHOP_ID) == []
 
 
 def test_limit_caps_the_number_of_matches(db_session, category, clean_kb):
     for _ in range(5):
         db_session.add(
-            KnowledgeBaseEntry(category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
+            KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
         )
     db_session.commit()
 
-    assert len(troubleshooting.suggest_fixes(db_session, "the pump is leaking water", limit=2)) == 2
+    assert len(troubleshooting.suggest_fixes(db_session, "the pump is leaking water", shop_id=DEFAULT_SHOP_ID, limit=2)) == 2
 
 
 def test_a_broken_model_fails_closed_instead_of_raising(db_session, category, clean_kb, monkeypatch):
     db_session.add(
-        KnowledgeBaseEntry(category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
+        KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, issue_pattern="the pump is leaking water", suggested_fix="Tighten the fitting.")
     )
     db_session.commit()
 
@@ -100,4 +101,4 @@ def test_a_broken_model_fails_closed_instead_of_raising(db_session, category, cl
 
     monkeypatch.setattr(troubleshooting, "_model", _raise)
 
-    assert troubleshooting.suggest_fixes(db_session, "the pump is leaking water") == []
+    assert troubleshooting.suggest_fixes(db_session, "the pump is leaking water", shop_id=DEFAULT_SHOP_ID) == []

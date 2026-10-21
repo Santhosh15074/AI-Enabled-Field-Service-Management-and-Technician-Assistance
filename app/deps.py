@@ -26,9 +26,9 @@ def get_optional_user(request: Request, db: Session = Depends(get_db)) -> User |
     if user_id is None:
         return None
     # The role is read from the database on every request, never from the cookie,
-    # so a role change or deactivation takes effect immediately.
+    # so a role change or deactivation — of the user or their whole shop — takes effect immediately.
     user = db.get(User, user_id)
-    if user is None or not user.is_active:
+    if user is None or not user.is_active or not user.shop.is_active:
         request.session.clear()
         return None
     return user

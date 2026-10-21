@@ -16,6 +16,7 @@ from app.deps import require_role
 from app.ml.failure import attach_latest_risk, predict_risk
 from app.models import Customer, Equipment, PredictionLog, RiskLevel, Role, ServiceRequest, User
 from app.schemas import AdminEquipmentOut, EquipmentIn, EquipmentOut, EquipmentReadingsIn
+from app.shops import customer_ids, not_found_outside_shop
 
 router = APIRouter(prefix="/api/equipment", tags=["equipment"])
 
@@ -35,11 +36,14 @@ def list_my_equipment(user: User = Depends(require_role(Role.CUSTOMER)), db: Ses
 
 
 @router.get("/all", response_model=list[AdminEquipmentOut])
-def list_all_equipment(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+def list_all_equipment(user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
     """Every customer's equipment, worst risk first — the fleet-wide view behind "Failure
     predictions" on the admin sidebar. list_my_equipment is the customer's own, narrower one."""
     equipment = db.scalars(
-        select(Equipment).options(joinedload(Equipment.customer).joinedload(Customer.user)).order_by(Equipment.id.desc())
+        select(Equipment)
+        .options(joinedload(Equipment.customer).joinedload(Customer.user))
+        .where(Equipment.customer_id.in_(customer_ids(user.shop_id)))
+        .order_by(Equipment.id.desc())
     ).all()
     attach_latest_risk(db, equipment)
     return sorted(equipment, key=lambda item: _RISK_RANK[item.risk_level])
@@ -74,6 +78,7 @@ def record_readings(
     equipment = db.get(Equipment, equipment_id)
     if equipment is None:
         raise HTTPException(status_code=404, detail="That equipment doesn't exist.")
+    not_found_outside_shop(equipment.customer.user.shop_id, user, "That equipment doesn't exist.")
     if user.role == Role.TECHNICIAN:
         visited = db.scalar(
             select(ServiceRequest.id)

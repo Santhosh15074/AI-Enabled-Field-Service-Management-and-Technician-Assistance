@@ -32,3 +32,6 @@ Thumbs.db
 # Test coverage data
 .coverage
 htmlcov/
+
+# Uploaded files (voice notes); back up alongside the database instead
+media/

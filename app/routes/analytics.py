@@ -1,6 +1,6 @@
 """Figures for the admin analytics page: request trends, workload and equipment risk.
 
-Counts are small (one business's requests), so rows are fetched once and grouped in Python,
+Counts are small (one shop's requests), so rows are fetched once and grouped in Python,
 which keeps the date bucketing identical on PostgreSQL and the SQLite used by the tests.
 """
 
@@ -26,6 +26,7 @@ from app.models import (
     User,
 )
 from app.schemas import AnalyticsOut, DailyCount, NamedCount, TechnicianWorkload
+from app.shops import customer_ids, equipment_ids, request_ids
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
@@ -50,14 +51,19 @@ def _in_order(counts: Counter, names) -> list[NamedCount]:
 
 
 @router.get("", response_model=AnalyticsOut)
-def analytics(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
-    requests = db.scalars(select(ServiceRequest).options(joinedload(ServiceRequest.category))).all()
+def analytics(user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+    shop_id = user.shop_id
+    requests = db.scalars(
+        select(ServiceRequest)
+        .options(joinedload(ServiceRequest.category))
+        .where(ServiceRequest.customer_id.in_(customer_ids(shop_id)))
+    ).all()
 
     resolved_at = {
         request_id: _utc(changed_at)
         for request_id, changed_at in db.execute(
             select(RequestStatusLog.request_id, func.min(RequestStatusLog.changed_at))
-            .where(RequestStatusLog.new_status == RequestStatus.RESOLVED)
+            .where(RequestStatusLog.new_status == RequestStatus.RESOLVED, RequestStatusLog.request_id.in_(request_ids(shop_id)))
             .group_by(RequestStatusLog.request_id)
         )
     }
@@ -86,11 +92,16 @@ def analytics(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Dep
     ]
 
     # Each piece of equipment counts once, by its most recent prediction.
-    latest_ids = select(func.max(PredictionLog.id)).group_by(PredictionLog.equipment_id)
+    latest_ids = (
+        select(func.max(PredictionLog.id))
+        .where(PredictionLog.equipment_id.in_(equipment_ids(shop_id)))
+        .group_by(PredictionLog.equipment_id)
+    )
     risk_counts = Counter(
         db.scalars(select(PredictionLog.risk_level).where(PredictionLog.id.in_(latest_ids))).all()
     )
-    risk_counts[UNSCORED] = (db.scalar(select(func.count(Equipment.id))) or 0) - risk_counts.total()
+    equipment_count = db.scalar(select(func.count(Equipment.id)).where(Equipment.id.in_(equipment_ids(shop_id))))
+    risk_counts[UNSCORED] = (equipment_count or 0) - risk_counts.total()
 
     return AnalyticsOut(
         days=DAYS,
@@ -99,13 +110,13 @@ def analytics(_user: User = Depends(require_role(Role.ADMIN)), db: Session = Dep
         by_urgency=_in_order(Counter(request.urgency for request in requests), Urgency),
         by_category=by_category,
         equipment_risk=_in_order(risk_counts, [*RiskLevel, UNSCORED]),
-        technicians=_workload(db, requests, resolution_time),
+        technicians=_workload(db, shop_id, requests, resolution_time),
         avg_resolution_hours=_hours(list(resolution_time.values())),
     )
 
 
 def _workload(
-    db: Session, requests: list[ServiceRequest], resolution_time: dict[int, timedelta]
+    db: Session, shop_id: int, requests: list[ServiceRequest], resolution_time: dict[int, timedelta]
 ) -> list[TechnicianWorkload]:
     """Every active technician, plus any deactivated one who still has requests to their name."""
     by_technician: dict[int, list[ServiceRequest]] = {}
@@ -113,7 +124,9 @@ def _workload(
         if request.technician_id is not None:
             by_technician.setdefault(request.technician_id, []).append(request)
 
-    technicians = db.scalars(select(Technician).options(joinedload(Technician.user))).all()
+    technicians = db.scalars(
+        select(Technician).join(User).options(joinedload(Technician.user)).where(User.shop_id == shop_id)
+    ).all()
     workload = []
     for technician in technicians:
         jobs = by_technician.get(technician.id, [])

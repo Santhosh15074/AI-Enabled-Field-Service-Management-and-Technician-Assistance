@@ -8,9 +8,10 @@ measured model performance is in [evaluation.md](evaluation.md).
 
 | Role | Signs up how | Main tasks |
 |---|---|---|
-| Customer | Self-registers on the customer portal (phone number + password) | Register equipment, raise complaints, try suggested quick fixes, track requests, read service reports |
+| Operator (Sollu staff) | First one with `scripts/create_operator.py` | Config portal (`/config`) only: create shops and their owners, set plans and limits, switch shops off, add staff, reset passwords |
+| Customer | Self-registers through their shop's link, `/portal/register?shop=<slug>` (phone number + password) | Register equipment, raise complaints, try suggested quick fixes, track requests, read service reports |
 | Technician | Created by an admin | See assigned jobs, raise requests for customers, update status, view suggested fixes, record sensor readings, dictate service reports |
-| Admin | Created with `scripts/create_user.py`, or by another admin | Raise requests for customers, assign technicians, manage staff accounts, maintain the knowledge base, watch failure predictions, review analytics |
+| Admin (shop owner) | Created with the shop in the config portal, or by another owner of the same shop | Raise requests for customers, assign technicians, manage staff accounts, maintain the knowledge base, watch failure predictions, review analytics |
 
 ## 2. Components
 

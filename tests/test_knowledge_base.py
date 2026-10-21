@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 
 from app.models import ComplaintCategory, KnowledgeBaseEntry, Role
-from tests.conftest import log_in
+from tests.conftest import DEFAULT_SHOP_ID, log_in
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ ENTRY = {"equipment_type": "Pump", "issue_pattern": "The pump is leaking", "sugg
 
 class TestListEntries:
     def test_admin_sees_every_entry_with_its_category_name(self, client, db_session, admin, category):
-        db_session.add(KnowledgeBaseEntry(category_id=category.id, **ENTRY))
+        db_session.add(KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, **ENTRY))
         db_session.commit()
 
         log_in(client, admin.email)
@@ -79,7 +79,7 @@ class TestCreateEntry:
 class TestUpdateEntry:
     @pytest.fixture
     def entry_id(self, db_session, category):
-        entry = KnowledgeBaseEntry(category_id=category.id, **ENTRY)
+        entry = KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, **ENTRY)
         db_session.add(entry)
         db_session.commit()
         return entry.id
@@ -123,7 +123,7 @@ class TestUpdateEntry:
 class TestDeleteEntry:
     @pytest.fixture
     def entry_id(self, db_session, category):
-        entry = KnowledgeBaseEntry(category_id=category.id, **ENTRY)
+        entry = KnowledgeBaseEntry(shop_id=DEFAULT_SHOP_ID, category_id=category.id, **ENTRY)
         db_session.add(entry)
         db_session.commit()
         return entry.id
