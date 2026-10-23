@@ -187,7 +187,7 @@ export function NewRequestPage() {
 
               <Field>
                 <FieldLabel htmlFor="category">
-                  Category <span className="font-normal text-muted-foreground">(optional)</span>
+                  Category <span className="font-normal text-muted-foreground">(optional, AI picks one if you leave it)</span>
                 </FieldLabel>
                 <NativeSelect
                   id="category"

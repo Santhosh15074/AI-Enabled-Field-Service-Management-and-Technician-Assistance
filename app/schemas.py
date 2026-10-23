@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -239,11 +240,24 @@ class ServiceRequestOut(BaseModel):
     description: str
     status: str
     urgency: str
+    # See app.ml.triage: safety_rule, ai or model (None on requests from before triage existed).
+    urgency_source: str | None
+    urgency_reason: str | None
+    category_source: str | None
     created_at: datetime
     equipment: EquipmentOut | None
     category: ComplaintCategoryOut | None
     customer: CustomerSummary
     technician: TechnicianSummary | None
+
+
+class AssignmentSuggestionOut(BaseModel):
+    """See app.ml.assignment. `source` is "ai" (Gemini weighed the facts) or "rules" (a score did)."""
+
+    technician_id: int
+    technician_name: str
+    reason: str
+    source: Literal["ai", "rules"]
 
 
 class KnowledgeBaseEntryIn(BaseModel):
@@ -277,8 +291,10 @@ class SuggestionOut(BaseModel):
     equipment_type: str | None
     issue_pattern: str
     suggested_fix: str
-    # 0-1: how closely this entry matched the description, not a probability.
-    similarity: float
+    # 0-1: how closely this entry matched the description, not a probability. None for an AI draft.
+    similarity: float | None
+    # "ai" is a generated draft nobody has checked (app.ml.ai_fallback).
+    source: Literal["knowledge_base", "ai"] = "knowledge_base"
 
 
 class ReportExtractIn(BaseModel):
@@ -293,6 +309,8 @@ class ExtractedFieldsOut(BaseModel):
     action_taken: str | None
     parts_used: str | None
     time_spent_minutes: int | None
+    # "ai" (Gemini, see app.ml.report_ai) or "rules" (app.report_extraction, its fallback).
+    source: Literal["ai", "rules"] = "rules"
 
 
 class ServiceReportIn(BaseModel):

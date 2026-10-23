@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AlertCircleIcon, CheckIcon, Loader2Icon, SearchIcon } from 'lucide-react'
+import { AlertCircleIcon, CheckIcon, Loader2Icon, SparklesIcon } from 'lucide-react'
 
 import { PageTitle } from '@/components/dashboard'
 import { VoiceNotesPanel } from '@/components/voice-notes-panel'
@@ -108,10 +108,17 @@ ${more}` : more))
                     disabled={reportText.trim().length < 10 || extract.isPending}
                     onClick={applyExtraction}
                   >
-                    {extract.isPending ? <Loader2Icon className="animate-spin" aria-hidden="true" /> : <SearchIcon aria-hidden="true" />}
-                    Extract details
+                    {extract.isPending ? <Loader2Icon className="animate-spin" aria-hidden="true" /> : <SparklesIcon aria-hidden="true" />}
+                    {extract.isPending ? 'Filling the report…' : 'Fill the report with AI'}
                   </Button>
                 </div>
+              )}
+              {!readOnly && extract.data && (
+                <p className="text-xs text-muted-foreground">
+                  {extract.data.source === 'ai'
+                    ? 'Filled in by AI from your notes, in English. Check each field before saving.'
+                    : 'AI was unavailable, so the fields were filled by keyword rules. Check each field before saving.'}
+                </p>
               )}
             </Field>
 

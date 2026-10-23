@@ -12,9 +12,12 @@ from sqlalchemy.orm import Session, joinedload, selectinload
 from app.database import get_db
 from app.deps import require_role
 from app.ml.failure import attach_latest_risk
+from app.ml import ai_fallback
+from app.ml.assignment import suggest_technician
 from app.ml.troubleshooting import suggest_fixes
-from app.ml.urgency import predict_urgency
+from app.ml.triage import triage
 from app.models import (
+    AiSuggestion,
     ComplaintCategory,
     Customer,
     Equipment,
@@ -28,6 +31,7 @@ from app.models import (
     User,
 )
 from app.schemas import (
+    AssignmentSuggestionOut,
     ComplaintCategoryOut,
     CustomerChoice,
     RequestUpdateIn,
@@ -111,13 +115,22 @@ def create_request(
             raise HTTPException(status_code=400, detail=detail)
         customer.address = address
 
+    decided = triage(
+        db,
+        description,
+        equipment=f"{equipment.type} ({equipment.name})" if equipment_id is not None else None,
+        needs_category=category_id is None,
+    )
     request = ServiceRequest(
         customer_id=customer.id,
         technician_id=user.technician.id if user.role == Role.TECHNICIAN else None,
         equipment_id=equipment_id,
-        category_id=category_id,
+        category_id=category_id or decided.category_id,
+        category_source="ai" if category_id is None and decided.category_id is not None else None,
         description=description,
-        urgency=predict_urgency(description),
+        urgency=decided.urgency,
+        urgency_source=decided.source,
+        urgency_reason=decided.reason,
     )
     db.add(request)
     db.flush()  # Assigns request.id for the status log row below, before the single commit.
@@ -208,6 +221,10 @@ def _serialize_suggestions(matches: list[tuple[KnowledgeBaseEntry, float]]) -> l
     ]
 
 
+def _ai_suggestion(issue: str, text: str) -> SuggestionOut:
+    return SuggestionOut(equipment_type=None, issue_pattern=issue, suggested_fix=text, similarity=None, source="ai")
+
+
 @router.post("/suggestions", response_model=list[SuggestionOut])
 def suggest_for_description(
     body: SuggestionIn,
@@ -215,18 +232,59 @@ def suggest_for_description(
     db: Session = Depends(get_db),
 ):
     """Tried before a request is even submitted, so a customer (or staff taking their call) can
-    attempt an easy fix first — see the "Check for a quick fix" button on the new-request form."""
-    return _serialize_suggestions(suggest_fixes(db, body.description, shop_id=user.shop_id))
+    attempt an easy fix first — see the "Check for a quick fix" button on the new-request form.
+    When the knowledge base has nothing, an AI draft instead; a customer's only contains steps
+    that are safe without opening the unit (see app.ml.ai_fallback). There's no request yet to
+    save it against, so it isn't cached."""
+    matches = suggest_fixes(db, body.description, shop_id=user.shop_id)
+    if matches:
+        return _serialize_suggestions(matches)
+    draft = ai_fallback.draft_fix(body.description, for_customer=user.role == Role.CUSTOMER)
+    return [_ai_suggestion(body.description, draft.text)] if draft else []
 
 
 @router.get("/{request_id}/suggestions", response_model=list[SuggestionOut])
 def suggest_for_request(
     request_id: int, user: User = Depends(require_role(Role.ADMIN, Role.TECHNICIAN)), db: Session = Depends(get_db)
 ):
-    request = _get_request_in_shop(db, request_id, user)
+    request = _get_request_in_shop(db, request_id, user, joinedload(ServiceRequest.equipment))
     if user.role == Role.TECHNICIAN and request.technician_id != user.technician.id:
         raise HTTPException(status_code=403, detail="This request isn't assigned to you.")
-    return _serialize_suggestions(suggest_fixes(db, request.description, shop_id=user.shop_id))
+    matches = suggest_fixes(db, request.description, shop_id=user.shop_id)
+    if matches or not ai_fallback.enabled():
+        return _serialize_suggestions(matches)
+
+    # Nothing in the knowledge base: the saved draft if there is one for this exact complaint,
+    # otherwise ask for one straight away and save it.
+    saved = db.scalar(select(AiSuggestion).where(AiSuggestion.request_id == request.id))
+    if saved is not None and saved.description == request.description:
+        return [_ai_suggestion(request.description, saved.text)]
+    equipment = f"{request.equipment.type} ({request.equipment.name})" if request.equipment else None
+    draft = ai_fallback.draft_fix(request.description, equipment)
+    if draft is None:
+        return []
+    if saved is None:
+        saved = AiSuggestion(request_id=request.id)
+        db.add(saved)
+    saved.description, saved.text, saved.model = request.description, draft.text, draft.model
+    db.commit()
+    return [_ai_suggestion(request.description, draft.text)]
+
+
+@router.get("/{request_id}/assignment-suggestion", response_model=AssignmentSuggestionOut | None)
+def suggest_assignment(request_id: int, user: User = Depends(require_role(Role.ADMIN)), db: Session = Depends(get_db)):
+    """Which technician should take this request, and why — a suggestion only; the owner still
+    assigns. None when the shop has no active technicians. See app.ml.assignment."""
+    request = _get_request_in_shop(db, request_id, user, *_WITH_RELATED)
+    suggestion = suggest_technician(db, request, user.shop_id)
+    if suggestion is None:
+        return None
+    return AssignmentSuggestionOut(
+        technician_id=suggestion.technician.id,
+        technician_name=suggestion.technician.name,
+        reason=suggestion.reason,
+        source=suggestion.source,
+    )
 
 
 @router.patch("/{request_id}", response_model=ServiceRequestOut)

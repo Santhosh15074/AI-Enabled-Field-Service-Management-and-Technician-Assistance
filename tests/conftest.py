@@ -25,10 +25,14 @@ DEFAULT_SHOP_SLUG = "default"
 @pytest.fixture(autouse=True)
 def _test_settings(tmp_path, monkeypatch):
     """Uploads go to a per-test folder, and the app doesn't reach for the real database (or a
-    speech model) on startup to resume voice notes."""
+    speech model) on startup to resume voice notes, and the AI fallback stays off unless a test
+    turns it on."""
     settings = get_settings()
     monkeypatch.setattr(settings, "media_dir", tmp_path / "media")
     monkeypatch.setattr(settings, "resume_voice_notes_on_startup", False)
+    monkeypatch.setattr(settings, "preload_troubleshooting_model", False)
+    # Never call the real Gemini API from a test, even with a key in .env.
+    monkeypatch.setattr(settings, "gemini_api_key", "")
 
 
 @pytest.fixture

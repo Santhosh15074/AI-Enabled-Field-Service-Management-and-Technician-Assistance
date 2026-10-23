@@ -31,6 +31,21 @@ class Settings(BaseSettings):
     # Pick up voice notes left untranscribed when the server last stopped. Off in the tests.
     resume_voice_notes_on_startup: bool = True
 
+    # Google Gemini, for the AI features: troubleshooting fallback, triage, report structuring and
+    # assignment suggestions (app.ml.gemini). Empty key = all of them off, and the app works as before.
+    gemini_api_key: str = ""
+    # Gemini for every AI feature (app.ml.gemini): a fast "lite" model with thinking turned down,
+    # usually about 1 s. If it hasn't answered after ai_hedge_after_seconds the backup model is
+    # asked too, and the first answer wins. Empty backup = no hedging.
+    ai_fallback_model: str = "gemini-3.5-flash-lite"
+    ai_backup_model: str = "gemini-3.5-flash"
+    ai_hedge_after_seconds: float = 3.0
+    # Past this each feature gives up and does what it did before AI existed.
+    ai_fallback_timeout_seconds: float = 8.0
+    # Load the knowledge-base matching model at startup, so the first "Suggested fix" is instant.
+    # Off in the tests.
+    preload_troubleshooting_model: bool = True
+
 
 @lru_cache
 def get_settings() -> Settings:

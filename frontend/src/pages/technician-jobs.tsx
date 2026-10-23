@@ -10,6 +10,7 @@ import { SuggestionList } from '@/components/suggestion-list'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { TriageNote } from '@/components/triage-note'
 import { UrgencyBadge } from '@/components/urgency-badge'
 import {
   STATUS_ORDER,
@@ -53,6 +54,7 @@ function JobCard({
             )}
           </div>
           <p className="mt-1.5 text-sm">{request.description}</p>
+          <TriageNote request={request} />
           <p className="mt-1.5 text-xs text-muted-foreground">
             {request.customer.name} · {request.customer.phone} · {formatDate(request.created_at)}
           </p>

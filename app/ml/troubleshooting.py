@@ -67,3 +67,12 @@ def suggest_fixes(
     scores = corpus @ query
     ranked = sorted(zip(entries, scores), key=lambda pair: pair[1], reverse=True)
     return [(entry, float(score)) for entry, score in ranked[:limit] if score >= MIN_SIMILARITY]
+
+
+def preload() -> None:
+    """Loads the model ahead of the first suggestion (see main.py's startup), which otherwise pays
+    several seconds for it. A failure here is only logged: suggest_fixes copes on its own."""
+    try:
+        _model().encode(["warm up"])
+    except Exception:
+        logger.exception("Couldn't preload the troubleshooting model")

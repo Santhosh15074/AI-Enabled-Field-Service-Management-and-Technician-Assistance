@@ -625,7 +625,7 @@ class TestSuggestions:
 
         assert response.status_code == 200
         assert response.json() == [
-            {"equipment_type": "Pump", "issue_pattern": "the pump is leaking", "suggested_fix": "Tighten the fitting.", "similarity": 0.87}
+            {"equipment_type": "Pump", "issue_pattern": "the pump is leaking", "suggested_fix": "Tighten the fitting.", "similarity": 0.87, "source": "knowledge_base"}
         ]
         assert fake_suggestions == ["it's leaking everywhere"]
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertCircleIcon, ClipboardListIcon, FileTextIcon, PlusIcon } from 'lucide-react'
+import { AlertCircleIcon, ClipboardListIcon, FileTextIcon, Loader2Icon, PlusIcon, SparklesIcon, UserCheckIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { NativeSelect } from '@/components/ui/native-select'
+import { TriageNote } from '@/components/triage-note'
 import { UrgencyBadge } from '@/components/urgency-badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useReport } from '@/lib/reports'
@@ -18,6 +19,7 @@ import {
   STATUS_LABEL,
   STATUS_ORDER,
   useAllRequests,
+  useAssignmentSuggestion,
   useTechnicians,
   useUpdateRequest,
   type RequestStatus,
@@ -44,6 +46,9 @@ function RequestRow({
 }) {
   const [showReport, setShowReport] = useState(false)
   const report = useReport(request.id, showReport)
+  const [askedForSuggestion, setAskedForSuggestion] = useState(false)
+  const suggestion = useAssignmentSuggestion(request.id, askedForSuggestion)
+  const resolved = request.status === 'resolved'
   // A request can only move forward, so earlier statuses aren't offered once passed.
   const availableStatuses = STATUS_ORDER.filter((status) => STATUS_ORDER.indexOf(status) >= STATUS_ORDER.indexOf(request.status))
 
@@ -65,6 +70,7 @@ function RequestRow({
             <span className="ml-auto text-xs text-muted-foreground lg:ml-0">{formatDate(request.created_at)}</span>
           </div>
           <p className="mt-1.5 text-sm">{request.description}</p>
+          <TriageNote request={request} />
           <p className="mt-1.5 text-xs text-muted-foreground">
             {request.customer.name} · {request.customer.phone}
           </p>
@@ -123,6 +129,45 @@ function RequestRow({
               </option>
             ))}
           </NativeSelect>
+          {!resolved && (
+            <div className="col-span-2">
+              {!askedForSuggestion ? (
+                <Button type="button" variant="ghost" size="sm" className="w-full" onClick={() => setAskedForSuggestion(true)}>
+                  <SparklesIcon aria-hidden="true" />
+                  Suggest a technician
+                </Button>
+              ) : suggestion.isPending ? (
+                <p className="flex items-center gap-1.5 px-1 text-xs text-muted-foreground">
+                  <Loader2Icon className="size-3.5 animate-spin" aria-hidden="true" />
+                  Weighing skills and workload…
+                </p>
+              ) : suggestion.isError ? (
+                <p className="px-1 text-xs text-destructive">Couldn't get a suggestion.</p>
+              ) : !suggestion.data ? (
+                <p className="px-1 text-xs text-muted-foreground">Add a technician first.</p>
+              ) : (
+                <div className="rounded-lg border border-dashed border-amber-500/50 bg-amber-500/5 p-2.5 text-xs">
+                  <p className="font-medium">
+                    {suggestion.data.source === 'ai' ? 'AI suggests' : 'Suggested'}: {suggestion.data.technician_name}
+                  </p>
+                  <p className="mt-0.5 text-muted-foreground">{suggestion.data.reason}</p>
+                  {request.technician?.id !== suggestion.data.technician_id && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="mt-2"
+                      disabled={updating}
+                      onClick={() => onAssign(request.id, String(suggestion.data!.technician_id))}
+                    >
+                      <UserCheckIcon aria-hidden="true" />
+                      Assign {suggestion.data.technician_name}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

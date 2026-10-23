@@ -93,7 +93,27 @@ docs/
 The troubleshooting assistant's model (`sentence-transformers/all-MiniLM-L6-v2`) downloads itself
 from Hugging Face the first time it's used, then caches locally — so the first "Check for a quick
 fix" or technician "Suggested fix" click after a fresh install takes a bit longer and needs
-internet access; every one after that is instant and offline.
+internet access. The server loads it at startup, so after that every check is instant and offline.
+
+**AI features (Google Gemini).** With a key in `GEMINI_API_KEY` in `.env`, four features use
+Gemini, and each falls back to its non-AI behaviour if there's no key or Gemini is slow or down:
+
+- **Triage.** A new request's urgency, a one-line reason, and its category if none was picked, in
+  English, Tamil or Tanglish. A safety rule comes first: smoke, sparks, burning, a gas smell or a
+  shock is always high urgency. Without Gemini, the trained classifier decides urgency
+  (`app/ml/triage.py`).
+- **Troubleshooting fallback.** When nothing in the knowledge base matches, an AI-drafted list of
+  checks, marked as unchecked. Customers get a version with only safe steps. Saved once per
+  request; an owner can save a good draft into the knowledge base (`app/ml/ai_fallback.py`).
+- **Report structuring.** "Fill the report with AI" turns typed or dictated notes (Tamil, English
+  or both) into issue, action taken, parts used and time spent, in English. Without Gemini, the
+  keyword rules do it (`app/ml/report_ai.py`).
+- **Technician suggestion.** "Suggest a technician" on the owner's requests page weighs skill
+  area, availability, open jobs and similar past jobs, and says why. Without Gemini, a simple
+  score picks (`app/ml/assignment.py`).
+
+Each call usually takes about 1 s. If the main model hasn't answered within 3 s a backup model is
+asked as well, and the first answer wins (`app/ml/gemini.py`).
 
 **Voice notes.** Technicians record the job on the report screen, in Tamil, English or both, and
 the server turns it into text in the background. Recordings wait on the phone and upload

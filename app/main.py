@@ -11,6 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.config import get_settings
 from app.database import SessionLocal
 from app.deps import Forbidden, NotAuthenticated
+from app.ml import troubleshooting
 from app.voice.processing import resume_unfinished
 from app.routes import analytics, auth, equipment, knowledge_base, notifications, overview, platform, service_reports, service_requests, shops, users, voice_notes
 
@@ -28,6 +29,8 @@ async def _lifespan(_app: FastAPI):
     if get_settings().resume_voice_notes_on_startup:
         # On its own thread: transcribing can take minutes and mustn't hold up startup.
         threading.Thread(target=resume_unfinished, args=(SessionLocal,), daemon=True, name="voice-notes-resume").start()
+    if get_settings().preload_troubleshooting_model:
+        threading.Thread(target=troubleshooting.preload, daemon=True, name="troubleshooting-preload").start()
     yield
 
 

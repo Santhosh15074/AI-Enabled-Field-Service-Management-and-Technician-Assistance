@@ -57,6 +57,11 @@ export type ServiceRequest = {
   description: string
   status: RequestStatus
   urgency: 'low' | 'medium' | 'high'
+  /** How urgency was decided (see app.ml.triage); null on requests from before triage existed. */
+  urgency_source: 'safety_rule' | 'ai' | 'model' | null
+  urgency_reason: string | null
+  /** 'ai' when the category was picked by AI rather than by whoever raised the request. */
+  category_source: 'ai' | null
   created_at: string
   equipment: Equipment | null
   category: ComplaintCategory | null
@@ -177,11 +182,30 @@ export function useTechnicians() {
   })
 }
 
+export type AssignmentSuggestion = {
+  technician_id: number
+  technician_name: string
+  reason: string
+  source: 'ai' | 'rules'
+}
+
+/** Who should take this request, and why — see app.ml.assignment. Fetched only when asked for. */
+export function useAssignmentSuggestion(requestId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ['requests', requestId, 'assignment-suggestion'],
+    queryFn: () => api<AssignmentSuggestion | null>(`/api/requests/${requestId}/assignment-suggestion`),
+    enabled,
+  })
+}
+
 export type Suggestion = {
   equipment_type: string | null
   issue_pattern: string
   suggested_fix: string
-  similarity: number
+  /** 0-1 for a knowledge-base match; null for an AI draft. */
+  similarity: number | null
+  /** 'ai': generated because nothing in the knowledge base matched, unchecked, staff only. */
+  source: 'knowledge_base' | 'ai'
 }
 
 /** Matched against the knowledge base by meaning, not keywords — see app.ml.troubleshooting.

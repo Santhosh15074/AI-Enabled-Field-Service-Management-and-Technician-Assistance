@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useLocation } from 'react-router-dom'
 import { AlertCircleIcon, BookOpenIcon, Loader2Icon, PencilIcon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -29,9 +30,11 @@ export function AdminKnowledgeBasePage() {
   const createEntry = useCreateKnowledgeBaseEntry()
   const updateEntry = useUpdateKnowledgeBaseEntry()
   const deleteEntry = useDeleteKnowledgeBaseEntry()
-  const [open, setOpen] = useState(false)
+  // An AI draft to check and keep, from a suggestion's "save to knowledge base" button.
+  const draft = (useLocation().state as { draft?: Pick<typeof EMPTY, 'issue_pattern' | 'suggested_fix'> } | null)?.draft
+  const [open, setOpen] = useState(draft != null)
   const [editingId, setEditingId] = useState<number | null>(null)
-  const [form, setForm] = useState(EMPTY)
+  const [form, setForm] = useState(draft ? { ...EMPTY, ...draft } : EMPTY)
 
   const saving = editingId === null ? createEntry : updateEntry
   const update = (key: keyof typeof EMPTY) => (e: { target: { value: string } }) =>

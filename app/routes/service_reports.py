@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.deps import require_role
 from app.models import Role, ServiceReport, ServiceRequest, User
-from app.report_extraction import extract_fields
+from app.ml.report_ai import structure_report
 from app.schemas import ExtractedFieldsOut, ReportExtractIn, ServiceReportIn, ServiceReportOut
 from app.shops import not_found_outside_shop
 
@@ -38,9 +38,11 @@ def extract_report(
     db: Session = Depends(get_db),
 ):
     """A preview only — nothing is saved. The technician reviews and can correct every field
-    before submitting them for real via create_report."""
+    before submitting them for real via create_report. Gemini first, the keyword rules if it's
+    unavailable — see app.ml.report_ai."""
     get_request_for(request_id, user, db)
-    return asdict(extract_fields(body.report_text))
+    structured = structure_report(body.report_text)
+    return {**asdict(structured.fields), "source": structured.source}
 
 
 @router.post("/{request_id}/report", response_model=ServiceReportOut, status_code=201)

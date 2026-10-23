@@ -251,6 +251,11 @@ class ServiceRequest(Base):
     description: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(20), default=RequestStatus.OPEN)
     urgency: Mapped[str] = mapped_column(String(10), default=Urgency.MEDIUM)
+    # How urgency was decided (app.ml.triage: safety_rule, ai or model) and, when known, why.
+    urgency_source: Mapped[str | None] = mapped_column(String(20))
+    urgency_reason: Mapped[str | None] = mapped_column(Text)
+    # "ai" when the category was picked by app.ml.triage rather than by whoever raised the request.
+    category_source: Mapped[str | None] = mapped_column(String(20))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -260,6 +265,24 @@ class ServiceRequest(Base):
     equipment: Mapped["Equipment | None"] = relationship()
     technician: Mapped["Technician | None"] = relationship()
     category: Mapped["ComplaintCategory | None"] = relationship()
+
+
+class AiSuggestion(Base):
+    """A generated troubleshooting draft for a request whose complaint matched nothing in the
+    knowledge base — see app.ml.ai_fallback. Kept so the model is called once per request, not on
+    every look; `description` is the text it was drafted from, so an edited complaint gets a new
+    draft instead of a stale one."""
+
+    __tablename__ = "ai_suggestions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    request_id: Mapped[int] = mapped_column(
+        ForeignKey("service_requests.id", ondelete="CASCADE"), unique=True
+    )
+    description: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class RequestStatusLog(Base):

@@ -9,6 +9,9 @@ export type ExtractedFields = {
   time_spent_minutes: number | null
 }
 
+/** 'ai': Gemini structured the notes (app.ml.report_ai); 'rules': the keyword fallback did. */
+export type Extraction = ExtractedFields & { source: 'ai' | 'rules' }
+
 export type ServiceReport = ExtractedFields & {
   id: number
   request_id: number
@@ -36,7 +39,7 @@ export function useReport(requestId: number, enabled = true) {
 export function useExtractReport(requestId: number) {
   return useMutation({
     mutationFn: (reportText: string) =>
-      api<ExtractedFields>(`/api/requests/${requestId}/report/extract`, { method: 'POST', body: { report_text: reportText } }),
+      api<Extraction>(`/api/requests/${requestId}/report/extract`, { method: 'POST', body: { report_text: reportText } }),
   })
 }
 

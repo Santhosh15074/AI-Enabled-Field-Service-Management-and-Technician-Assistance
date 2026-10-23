@@ -3,6 +3,8 @@ fastapi==0.118.*
 uvicorn[standard]==0.37.*
 itsdangerous==2.2.*
 pydantic-settings==2.11.*
+# Calls Google Gemini for the troubleshooting assistant's AI fallback (app.ml.ai_fallback)
+httpx==0.28.*
 
 # Database
 sqlalchemy==2.0.*
@@ -26,5 +28,4 @@ faster-whisper==1.2.*
 
 # Testing
 pytest==8.4.*
-httpx==0.28.*
 pytest-cov==7.*
